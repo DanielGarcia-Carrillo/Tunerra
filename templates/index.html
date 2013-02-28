@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title></title>
-</head>
-<body>
-
-</body>
-</html>
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+    {{ block.super }}
+    <form action="accounts">
+        <button class="btn" type="submit">Signup/Login</button>
+    </form>
+{% endblock content %}

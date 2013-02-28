@@ -1,9 +1,67 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title></title>
-</head>
-<body>
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Accounts{% endblock title %}
+{% block content %}
+    {{ block.super }}
+    <div class="row-fluid">
+        <div class="span2"></div>
+        <div class="span5">
+            <form class="form-horizontal" method='post'> {% csrf_token %}
+                <div class="control-group">
+                    <label class="control-label" for="signupUsername">Username</label>
 
-</body>
-</html>
+                    <div class="controls">
+                        <input type="text" id="signupUsername" placeholder="Username" required>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="signupEmail">Email</label>
+
+                    <div class="controls">
+                        <input type="text" id="signupEmail" placeholder="Email" required>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="signupPassword">Password</label>
+
+                    <div class="controls">
+                        <input type="password" id="signupPassword" placeholder="Password" required>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <button type="submit" class="btn btn-primary">Create account</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="span5">
+            <!-- This is the form to sign in -->
+            <form class="form-horizontal" method='post'> {% csrf_token %}
+                <div class="control-group">
+                    <label class="control-label" for="login">Username/Email</label>
+
+                    <div class="controls">
+                        <input type="text" id="login" placeholder="Username/Email" required>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="loginPassword">Password</label>
+
+                    <div class="controls">
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <label class="checkbox">
+                            <input type="checkbox"> Remember me
+                        </label>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="span2"></div>
+    </div>
+{% endblock content %}

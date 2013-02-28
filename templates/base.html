@@ -1,9 +1,22 @@
 <!DOCTYPE html>
-<html>
+{% load staticfiles %}
+<html lang="en">
 <head>
-  <title></title>
+    <meta charset="utf-8">
+    <title>{% block title %}Tunerra{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block stylesheets %}
+        <link rel="stylesheet" type="text/css" href="{% static "bootstrap/css/bootstrap.min.css" %}" media="screen">
+        <link rel="stylesheet" type="text/css" href="{% static "bootstrap/css/bootstrap-responsive.min.css" %}" media="screen">
+    {% endblock stylesheets %}
 </head>
 <body>
-
+{% block content %}
+    <div class="navbar navbar-inverse navbar-static-top">
+        <div class="navbar-inner">
+            <a class="brand" href="/">Tunerra</a>
+        </div>
+    </div>
+{% endblock content %}
 </body>
 </html>
