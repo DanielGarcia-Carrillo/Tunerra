@@ -5,7 +5,8 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     ('Daniel Garcia-Carrillo','garciacarrillo.daniel@gmail.com'),
-    # ('Your Name', 'your_email@example.com'),
+    ('David Eisenberg', 'eisenbe7@illinois.edu'),
+    ('Mark Kurkowski', 'kurkows1@illinois.edu'),
 )
 
 MANAGERS = ADMINS
@@ -48,6 +49,9 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
+# Absolute path to the top level directory that holds everything required for django and the website
+import os.path
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = ''
@@ -61,7 +65,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/home/danielgc/webapps/static/'
+STATIC_ROOT = PROJECT_ROOT + '/static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
