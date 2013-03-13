@@ -17,6 +17,9 @@ class LoginForm(forms.Form):
     user_info = forms.CharField(max_length=30)
     password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput)
 
+def welcome(request):
+   return render(request, 'welcome.html', RequestContext(request))
+
 def login_signup(request):
     if request.method == 'POST':
         signup_form = SignupForm(request.POST)

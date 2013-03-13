@@ -8,7 +8,7 @@ urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'tunerra.views.index', name='home'),
     url(r'^accounts$', 'tunerra.views.login_signup'),
-    url(r'^accounts/welcome$'),
+    url(r'^accounts/welcome$', 'tunerra.views.welcome'),
     # url(r'^myproject/', include('myproject.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
