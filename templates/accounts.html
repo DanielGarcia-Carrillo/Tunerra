@@ -42,10 +42,10 @@
             <form class="form-horizontal" method='post'> {% csrf_token %}
                 {{ login_form.non_field_errors }}
                 <div class="control-group">
-                    {{ login_form.user_info.errors }}
-                    <label class="control-label" for="{{ login_form.user_info.auto_id }}">Username/Email</label>
+                    {{ login_form.username.errors }}
+                    <label class="control-label" for="{{ login_form.username.auto_id }}">Username</label>
                     <div class="controls">
-                        {{ login_form.user_info }}
+                        {{ login_form.username }}
                     </div>
                 </div>
                 <div class="control-group">

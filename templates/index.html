@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-{% block content %}
-    {{ block.super }}
-    <form action="accounts">
-        <button class="btn" type="submit">Signup/Login</button>
-    </form>
-{% endblock content %}
+{% block navbar %}
+    <ul class="nav pull-right">
+      <li><a href="/accounts">Signup/Login</a></li>
+    </ul>
+{% endblock navbar %}

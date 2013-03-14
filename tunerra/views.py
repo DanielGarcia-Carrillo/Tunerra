@@ -9,14 +9,18 @@ def index(request):
     return render(request,'index.html', RequestContext(request))
 
 class SignupForm(forms.Form):
+    def __init__(self, *args):
+        super(SignupForm, self).__init__(args, auto_id='id_signup_%s')
     # Putting these attrs here suck
     username = forms.CharField(max_length=30, min_length=5,widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email',type:'email'}))
-    password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
 
 class LoginForm(forms.Form):
-    user_info = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username/Email'}))
-    password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+    def __init__(self, *args):
+        super(LoginForm, self).__init__(args, auto_id='id_login_%s')
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
 
 def welcome(request):
    return render(request, 'welcome.html', RequestContext(request))
@@ -27,11 +31,13 @@ def login_signup(request):
         signup_form = SignupForm(request.POST)
         login_form = LoginForm(request.POST)
         if signup_form.is_valid():
+            new_user = User.objects.create_user(signup_form.username,signup_form.email, signup_form.username)
+            #if new_user is None:
+                # TODO do something about this, means that user exists already
+
             return HttpResponseRedirect('/accounts/welcome')
         elif login_form.is_valid():
-            user = authenticate(username=login_form.user_info, password=login_form.password)
-            if user is None:
-                user = authenticate(email=login_form.user_info, password=login_form.password)
+            user = authenticate(username=login_form.username, password=login_form.password)
             if user is None:
                 # Return error
                 return HttpResponse()
@@ -39,10 +45,10 @@ def login_signup(request):
                 # Send to profile
                 return HttpResponse()
         else:
-            # TODO Indicate that something is invalid
+            # TODO make this discriminant of which form was POSTed
             return render(request, 'accounts.html', {'signup_form':signup_form, 'login_form':login_form})
     else:
         return render(request, 'accounts.html', {
-            'signup_form': SignupForm(auto_id='id_signup_%s'),
-            'login_form':LoginForm(auto_id='id_login_%s')
+            'signup_form': SignupForm(),
+            'login_form': LoginForm()
         })
