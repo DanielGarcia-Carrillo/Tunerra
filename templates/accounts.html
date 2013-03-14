@@ -7,28 +7,30 @@
         <div class="span2"></div>
         <div class="span5">
             <form class="form-horizontal" method='post'> {% csrf_token %}
-                <div class="control-group">
-                    <label class="control-label" for="signupUsername">Username</label>
-
+                {{ signup_form.non_field_errors }}
+                <div class="control-group field-wrapper">
+                    {{ signup_form.username.errors }}
+                    <label class="control-label" for="{{ signup_form.username.auto_id }}">Username</label>
                     <div class="controls">
-                        <input type="text" id="signupUsername" placeholder="Username" required>
+                        {{ signup_form.username }}
                     </div>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="signupEmail">Email</label>
+                <div class="control-group field-wrapper">
+                    {{ signup_form.email.errors }}
+                    <label class="control-label" for="{{ signup_form.email.auto_id }}">Email</label>
 
                     <div class="controls">
-                        <input type="text" id="signupEmail" placeholder="Email" required>
+                        {{ signup_form.email }}
                     </div>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="signupPassword">Password</label>
-
+                <div class="control-group field-wrapper">
+                    {{ signup_form.password.errors }}
+                    <label class="control-label" for="{{ signup_form.password.auto_id }}">Password</label>
                     <div class="controls">
-                        <input type="password" id="signupPassword" placeholder="Password" required>
+                        {{ signup_form.password }}
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="control-group field-wrapper">
                     <div class="controls">
                         <button type="submit" class="btn btn-primary">Create account</button>
                     </div>
@@ -38,18 +40,19 @@
         <div class="span5">
             <!-- This is the form to sign in -->
             <form class="form-horizontal" method='post'> {% csrf_token %}
+                {{ login_form.non_field_errors }}
                 <div class="control-group">
-                    <label class="control-label" for="login">Username/Email</label>
-
+                    {{ login_form.user_info.errors }}
+                    <label class="control-label" for="{{ login_form.user_info.auto_id }}">Username/Email</label>
                     <div class="controls">
-                        <input type="text" id="login" placeholder="Username/Email" required>
+                        {{ login_form.user_info }}
                     </div>
                 </div>
                 <div class="control-group">
-                    <label class="control-label" for="loginPassword">Password</label>
-
+                    {{ login_form.password.errors }}
+                    <label class="control-label" for="{{ login_form.password.auto_id }}">Password</label>
                     <div class="controls">
-                        <input type="password" id="loginPassword" placeholder="Password" required>
+                        {{ login_form.password }}
                     </div>
                 </div>
                 <div class="control-group">

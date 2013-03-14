@@ -9,23 +9,24 @@ def index(request):
     return render(request,'index.html', RequestContext(request))
 
 class SignupForm(forms.Form):
-    username = forms.CharField(max_length=30, min_length=5)
-    email = forms.EmailField()
-    password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput)
+    # Putting these attrs here suck
+    username = forms.CharField(max_length=30, min_length=5,widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email',type:'email'}))
+    password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
 
 class LoginForm(forms.Form):
-    user_info = forms.CharField(max_length=30)
-    password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput)
+    user_info = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username/Email'}))
+    password = forms.CharField(max_length=50, min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
 
 def welcome(request):
    return render(request, 'welcome.html', RequestContext(request))
 
 def login_signup(request):
     if request.method == 'POST':
+        # Hacky way to tell which form is being POSTed
         signup_form = SignupForm(request.POST)
         login_form = LoginForm(request.POST)
         if signup_form.is_valid():
-            # TODO send to welcome page
             return HttpResponseRedirect('/accounts/welcome')
         elif login_form.is_valid():
             user = authenticate(username=login_form.user_info, password=login_form.password)
@@ -39,6 +40,9 @@ def login_signup(request):
                 return HttpResponse()
         else:
             # TODO Indicate that something is invalid
-            return render(request, 'accounts.html', RequestContext(request))
+            return render(request, 'accounts.html', {'signup_form':signup_form, 'login_form':login_form})
     else:
-        return render(request, 'accounts.html', RequestContext(request))
+        return render(request, 'accounts.html', {
+            'signup_form': SignupForm(auto_id='id_signup_%s'),
+            'login_form':LoginForm(auto_id='id_login_%s')
+        })
