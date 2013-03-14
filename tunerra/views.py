@@ -4,6 +4,10 @@ from django import forms
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+import urllib
+from xml.dom import minidom
+
+last_fm_key = '61994d32a190d0a98684e84d6f38b41a'
 
 def index(request):
     return render(request,'index.html', RequestContext(request))
@@ -23,7 +27,10 @@ class LoginForm(forms.Form):
     password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
 
 def welcome(request):
-   return render(request, 'welcome.html', RequestContext(request))
+    if not request.user.is_authenticated():
+        return redirect(request, 'login_error.html')
+    last_fm_form = lastFMForm(request.POST)
+    return render(request, 'welcome.html', {'last_fm_form': last_fm_form} )
 
 def login_signup(request):
     if request.method == 'POST':
@@ -56,3 +63,18 @@ def login_signup(request):
             'signup_form': SignupForm(),
             'login_form': LoginForm()
         })
+
+#Code to log into last FM
+
+class lastFMForm(forms.Form):
+    username = forms.CharField(max_length=50)
+
+def lastFM_Login(request):
+    if request.method == 'POST':
+        last_fm_form = lastFMForm(request.POST)
+        if last_fm_form.is_valid():
+            print last_fm_form.cleaned_data['username']
+
+
+
+
