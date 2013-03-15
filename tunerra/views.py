@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django import forms
 from django.db import models
 from tunerra.models import Song, Favorites, UserPreferences, Region
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 import urllib
@@ -41,14 +41,10 @@ def parse_LastFM_love(xmltree, request):
 def index(request):
     if request.user.is_authenticated():
         # TODO send to profile page, also figure out their name
-        return render(request, 'welcome.html', RequestContext(request))
+        return HttpResponseRedirect('/accounts/profile/'+request.user.username)
     else:
         # Treat them as anonymous user
-        return render(request,'index.html', RequestContext(request))
-
-def logout_user(request):
-    logout(request)
-    return HttpResponseRedirect('/')
+        return render(request, 'index.html', RequestContext(request))
 
 def login_error(request):
     return render(request, 'login_error.html', RequestContext(request))
@@ -69,13 +65,23 @@ def welcome(request):
 
         pop_val = prefForm.cleaned_data['popularity']
         genre_val = prefForm.cleaned_data['genre']
-        newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
+        user_pref = UserPreferences.objects.filter(user=request.user)
+        if user_pref:
+            # Update existing preferences
+            user_pref.notify_system = notify_val
+            user_pref.preferred_region = newReg
+            user_pref.preferred_popularity = pop_val
+            user_pref.preferred_genre = genre_val
+            user_pref.save()
+        else:
+            # Create new userprefs
+            newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
             preferred_region = newReg, preferred_popularity = pop_val, preferred_genre = genre_val)
-        newPrefs.save()
+            newPrefs.save()
 
 
 
-        return HttpResponse()
+        return HttpResponseRedirect('/accounts/profile/'+request.user.username)
     else:
         return render(request, 'welcome.html', {'prefsForm': prefForm} )
 
@@ -116,7 +122,7 @@ def login_signup(request):
                     return HttpResponse()
                 else:
                     login(request, user)
-                    # Send to profile TODO don't know url to redirect
+                    # Send to profile
                     return HttpResponseRedirect('/accounts/profile/'+login_username)
             else:
                 # Returns current login_form so that the login form errors will show up to user
@@ -145,9 +151,12 @@ def search(request):
     # TODO currently just sends to search page, should also populate with results
     return render(request, 'results.html', RequestContext(request))
 
-# TODO actually do something useful
 def user_profile(request, username):
-    return render(request, 'base.html', RequestContext(request))
+    if (request.user.is_authenticated() and request.user.username == username):
+        return render(request, 'profile.html', RequestContext(request))
+    else:
+        logout(request)
+        raise Http404
 
 class SignupForm(forms.Form):
     # Putting these attrs here suck
