@@ -189,7 +189,7 @@ def user_profile(request, username):
         favSongList = list()
         for fav in favList:
             currSong = fav.song_id
-            print currSong.title
+            # print currSong.title
             favSongList.append(currSong)
         return render(request, 'profile.html', {'FavList': favSongList})
     else:
