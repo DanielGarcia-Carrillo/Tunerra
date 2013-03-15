@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block navbar %}
+    <ul class="nav pull-right">
+        <li><a href="/accounts">Signup/Login</a></li>
+    </ul>
+{% endblock navbar %}
+<div id="search-box">
+    <form class="well" id="search-form" action="/search" method="get">
+        <input id="music-query">
+    </form>
+</div>

@@ -1,12 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
-
-
 class Region(models.Model):
     name = models.CharField(max_length=100, primary_key=True, unique=True)
-
 
 class UserPreferences(models.Model):
     user = models.OneToOneField(User)

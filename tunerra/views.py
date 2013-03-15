@@ -4,7 +4,7 @@ from django import forms
 from django.db import models
 from tunerra.models import Song, Favorites, UserPreferences, Region
 from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 import urllib
 from xml.dom import minidom
@@ -38,31 +38,24 @@ def parse_LastFM_love(xmltree, request):
                 print "SONGS ARE: " + song.getElementsByTagName('name')[0].firstChild.nodeValue
 
 
-
 def index(request):
-    return render(request,'index.html', RequestContext(request))
+    if request.user.is_authenticated():
+        # TODO send to profile page, also figure out their name
+        return render(request, 'welcome.html', RequestContext(request))
+    else:
+        # Treat them as anonymous user
+        return render(request,'index.html', RequestContext(request))
 
-class SignupForm(forms.Form):
-    #def __init__(self, *args):
-    #    super(SignupForm, self).__init__(args, auto_id='id_signup_%s')
-    # Putting these attrs here suck
-    username = forms.CharField(max_length=30, min_length=5,widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
-
-class LoginForm(forms.Form):
-    #def __init__(self, *args):
-    #    super(LoginForm, self).__init__(args, auto_id='id_login_%s')
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required' : True,'placeholder':'Username'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
-
-def logout(request):
+def logout_user(request):
     logout(request)
-    return redirect(request, 'index.html')
+    return HttpResponseRedirect('/')
+
+def login_error(request):
+    return render(request, 'login_error.html', RequestContext(request))
 
 def welcome(request):
     if not request.user.is_authenticated():
-        return redirect(request, 'login_error.html')
+        return HttpResponseRedirect('/login_error')
     prefForm = prefsForm(request.POST)
     if prefForm.is_valid():
         lastFMusername = prefForm.cleaned_data['LastFMusername']
@@ -86,32 +79,51 @@ def welcome(request):
     else:
         return render(request, 'welcome.html', {'prefsForm': prefForm} )
 
+def logout_user(request):
+    # Logs out user through auth system
+    logout(request)
+    return HttpResponseRedirect('/')
+
 def login_signup(request):
     if request.method == 'POST':
-        # Hacky way to tell which form is being POSTed
-        signup_form = SignupForm(request.POST)
-        login_form = LoginForm(request.POST)
-        if signup_form.is_valid():
-            new_user = User.objects.create_user(
-                username=signup_form.cleaned_data['username'],
-                email=signup_form.cleaned_data['email'],
-                password=signup_form.cleaned_data['password']
-            )
-            #if new_user is None:
-                # TODO do something about this, means that user exists already
+        if request.POST.get('form-name') == 'signup':
+            signup_form = SignupForm(request.POST)
+            if signup_form.is_valid():
+                # SELECT * FROM SiteUser WHERE username = ?:  signup_form.cleaned_data['username']
+                existing_user = User.objects.filter(username=signup_form.cleaned_data['username'])
+                if not existing_user:
+                    # INSERT INTO User (username, email, password) VALUES (?,?,?): username, email, password
+                    new_user = User.objects.create_user(
+                        username=signup_form.cleaned_data['username'],
+                        email=signup_form.cleaned_data['email'],
+                        password=signup_form.cleaned_data['password']
+                    )
 
-            return HttpResponseRedirect('/accounts/welcome')
-        elif login_form.is_valid():
-            user = authenticate(username=login_form.username, password=login_form.password)
-            if user is None:
-                # Return error
-                return HttpResponse()
+                    new_user2 = authenticate(username=signup_form.cleaned_data['username'], password=signup_form.cleaned_data['password'])
+                    login(request, new_user2)
+                    return HttpResponseRedirect('/accounts/welcome')
+            # Returns current signup_form as env variable so that form errors will show up to user
+            return render(request, 'accounts.html', {
+                'signup_form':signup_form,
+                'login_form':LoginForm()
+            })
+        elif request.POST.get('form-name') == 'login':
+            login_form = LoginForm(request.POST)
+            if login_form.is_valid():
+                user = authenticate(username=login_form.cleaned_data['username'], password=login_form.cleaned_data['password'])
+                if user is None:
+                    # Return error that something is wrong
+                    return HttpResponse()
+                else:
+                    login(request, user)
+                    # Send to profile TODO don't know url to redirect
+                    return HttpResponse()
             else:
-                # Send to profile
-                return HttpResponse()
-        else:
-            # TODO make this discriminant of which form was POSTed
-            return render(request, 'accounts.html', {'signup_form':signup_form, 'login_form':login_form})
+                # Returns current login_form so that the login form errors will show up to user
+                return render(request, 'accounts.html', {
+                    'signup_form':SignupForm(),
+                    'login_form':login_form
+                })
     else:
         return render(request, 'accounts.html', {
             'signup_form': SignupForm(),
@@ -129,3 +141,20 @@ class prefsForm(forms.Form):
 
 
 
+def search(request):
+    # TODO currently just sends to search page, should also populate with results
+    return render(request, 'results.html', RequestContext(request))
+
+# TODO actually do something useful
+def user_profile(request):
+    return render(request, 'base.html', RequestContext(request))
+
+class SignupForm(forms.Form):
+    # Putting these attrs here suck
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))

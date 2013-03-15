@@ -1,16 +1,20 @@
 from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
-admin.autodiscover()
 from django.contrib import admin
+admin.autodiscover()
+
 
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'tunerra.views.index', name='home'),
+    url(r'^search$', 'tunerra.views.search'),
+
     url(r'^accounts$', 'tunerra.views.login_signup'),
     url(r'^accounts/welcome$', 'tunerra.views.welcome'),
-    url(r'^accounts/logout$', 'tunerra.views.logout'),
-    url(r'^sign out$', 'tunerra.views.logout'),
+    url(r'^accounts/logout$', 'tunerra.views.logout_user'),
+    url(r'^login_error$', 'tunerra.views.login_error'),
+    # Insert RESTful url here for accounts (accounts/[id] or profile/[id]) perhaps?
     # url(r'^myproject/', include('myproject.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
