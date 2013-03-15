@@ -2,6 +2,41 @@
 {% load staticfiles %}
 {% block navbar %}
     <ul class="nav pull-right">
-        <li><a href="/accounts/logout">Logout</a></li>
+      <li><a href="accounts/logout">Logout</a></li>
     </ul>
 {% endblock navbar %}
+{% block content %}
+    {{block.super}}
+    <h2>Welcome, {{ user.username }}</h2>
+    <p>To begin, enter your preferences.<p>
+    <div class = "row"><br>
+        <div class="span12"><br>
+            <form class ="form-horizontal" method='post'> {% csrf_token %}
+                {{ last_fm_form.non_field_errors }}
+            <label class = "control-label" for ="{{prefsform.notify_system}}">Receive Notifications:</label>
+            <div class = "controls">
+                {{prefsForm.notify_system}}
+            </div><br><br>
+            <label class = "control-label" for ="{{prefsform.region}}">Enter your region:</label>
+            <div class = "controls">
+                {{prefsForm.region}}
+            </div><br><br>
+            <label class = "control-label" for ="{{prefsform.popularity}}">Choose default popularity level:</label><br>
+            <div class = "controls">
+                {{prefsForm.popularity}}
+            </div><br><br>
+            <label class = "control-label" for ="{{prefsform.genre}}">Enter one genre of music you listen to  <font size="1">(don't worry - you can choose more later!)</label><br>
+            <div class = "controls">
+                {{prefsForm.genre}}
+            </div><br><br>
+            <label class = "control-label" for="{{ prefsForm.LastFMusername.auto_id}}">LastFM username:</label>
+            <div class="controls">
+                {{prefsForm.LastFMusername}}
+            </div><br>
+            <div class="control-group field-wrapper">
+                <div class="controls">
+                    <button type="submit" class ="btn btn-primary">Get Songs</button>
+                    <button class ="btn">Skip</button>
+                </div>
+            </div>
+{% endblock content %}

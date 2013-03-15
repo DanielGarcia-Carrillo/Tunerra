@@ -4,6 +4,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
+
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'tunerra.views.index', name='home'),
@@ -13,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^accounts/welcome$', 'tunerra.views.welcome'),
     url(r'^accounts/logout$', 'tunerra.views.logout_user'),
     url(r'^accounts/profile/()$', 'tunerra.views.user_profile'),
+    url(r'^login_error$', 'tunerra.views.login_error'),
     # Insert RESTful url here for accounts (accounts/[id] or profile/[id]) perhaps?
     # url(r'^myproject/', include('myproject.foo.urls')),
 
