@@ -12,7 +12,7 @@
     {% endblock stylesheets %}
 </head>
 <body>
-{% block content %}
+{% block navigation %}
     <div class="navbar navbar-inverse navbar-static-top">
         <div class="navbar-inner">
             <a class="brand" href="/">Tunerra</a>
@@ -20,6 +20,8 @@
             {% endblock navbar %}
         </div>
     </div>
+{% endblock navigation %}
+{% block content %}
 {% endblock content %}
 
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>

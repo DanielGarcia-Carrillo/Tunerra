@@ -5,10 +5,12 @@
       <li><a href="/accounts/logout">Logout</a></li>
     </ul>
 {% endblock navbar %}
-{% block content %}
+{% block navigation %}
     {{block.super}}
+{% endblock navigation %}
+{% block content %}
     <h2>Welcome, {{ user.username }}</h2>
-    <p>To begin, enter your preferences.<p>
+    <p>To begin, enter your preferences.<p>\
     <div class = "row"><br>
         <div class="span12"><br>
             <form class ="form-horizontal" method='post'> {% csrf_token %}

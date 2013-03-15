@@ -40,7 +40,6 @@ def parse_LastFM_love(xmltree, request):
 
 def index(request):
     if request.user.is_authenticated():
-        # TODO send to profile page, also figure out their name
         return HttpResponseRedirect('/accounts/profile/'+request.user.username)
     else:
         # Treat them as anonymous user
