@@ -36,6 +36,8 @@ def login_signup(request):
                         email=signup_form.cleaned_data['email'],
                         password=signup_form.cleaned_data['password']
                     )
+                    new_user = authenticate(username=signup_form.cleaned_data['username'], password=signup_form.clean)
+                    login(request, new_user)
                     return HttpResponseRedirect('/accounts/welcome')
             # Returns current signup_form as env variable so that form errors will show up to user
             return render(request, 'accounts.html', {
@@ -45,14 +47,15 @@ def login_signup(request):
         elif request.POST.get('form-name') == 'login':
             login_form = LoginForm(request.POST)
             if login_form.is_valid():
-                user = authenticate(username=login_form.cleaned_data['username'], password=login_form.cleaned_data['password'])
+                login_username = login_form.cleaned_data['username']
+                user = authenticate(username=login_username, password=login_form.cleaned_data['password'])
                 if user is None:
                     # Return error that something is wrong
                     return HttpResponse()
                 else:
                     login(request, user)
                     # Send to profile TODO don't know url to redirect
-                    return HttpResponse()
+                    return HttpResponseRedirect('/accounts/profile/'+login_username)
             else:
                 # Returns current login_form so that the login form errors will show up to user
                 return render(request, 'accounts.html', {
@@ -70,7 +73,7 @@ def search(request):
     return render(request, 'results.html', RequestContext(request))
 
 # TODO actually do something useful
-def user_profile(request):
+def user_profile(request, username):
     return render(request, 'base.html', RequestContext(request))
 
 class SignupForm(forms.Form):

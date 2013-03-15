@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^accounts$', 'tunerra.views.login_signup'),
     url(r'^accounts/welcome$', 'tunerra.views.welcome'),
     url(r'^accounts/logout$', 'tunerra.views.logout_user'),
+    url(r'^accounts/profile/()$', 'tunerra.views.user_profile'),
     # Insert RESTful url here for accounts (accounts/[id] or profile/[id]) perhaps?
     # url(r'^myproject/', include('myproject.foo.urls')),
 
