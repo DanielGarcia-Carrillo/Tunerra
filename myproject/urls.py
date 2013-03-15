@@ -7,6 +7,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'tunerra.views.index', name='home'),
+    url(r'^search$', 'tunerra.views.search'),
+
     url(r'^accounts$', 'tunerra.views.login_signup'),
     url(r'^accounts/welcome$', 'tunerra.views.welcome'),
     url(r'^accounts/logout$', 'tunerra.views.logout_user'),

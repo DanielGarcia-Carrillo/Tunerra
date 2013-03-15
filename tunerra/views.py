@@ -8,7 +8,7 @@ from tunerra.models import *
 
 def index(request):
     if request.user.is_authenticated():
-        # TODO this is not what I actually want to happen, I just don't know the
+        # TODO send to profile page, also figure out their name
         return render(request, 'welcome.html', RequestContext(request))
     else:
         # Treat them as anonymous user
@@ -18,7 +18,7 @@ def welcome(request):
    return render(request, 'welcome.html', RequestContext(request))
 
 def logout_user(request):
-    # Kind of what I'd like to do but actually logout user through Auth system
+    # Logs out user through auth system
     logout(request)
     return HttpResponseRedirect('/')
 
@@ -64,6 +64,10 @@ def login_signup(request):
             'signup_form': SignupForm(),
             'login_form': LoginForm()
         })
+
+def search(request):
+    # TODO currently just sends to search page, should also populate with results
+    return render(request, 'results.html', RequestContext(request))
 
 # TODO actually do something useful
 def user_profile(request):
