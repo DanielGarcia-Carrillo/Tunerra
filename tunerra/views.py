@@ -25,6 +25,7 @@ def parse_LastFM_love(xmltree, request):
                 title = song.getElementsByTagName('name')[0].firstChild.nodeValue
                 artist = song.getElementsByTagName('artist')[0].getElementsByTagName('name')[0].firstChild.nodeValue
                 newSong = Song(title = title, artist = artist, album='noalb', year ='1999-01-22')
+                # INSERT INTO Song (title, artist, album, year) VALUES ?,?,'noalb', '1999-01-22;  title artist
                 newSong.save()
                 newFav = Favorites()
                 user = request.user
@@ -32,6 +33,7 @@ def parse_LastFM_love(xmltree, request):
                 song_id = newSong
                 play_count = 1
                 last_played = song.getElementsByTagName('date')[0].firstChild.nodeValue
+                # INSERT INTO Favorites (user, hotness_level, song_id, play_count, last_played) VALUES ?,?,?,?,'1999-01-22'
                 newFav = Favorites(user = user, hotness_level = hotness_level, song_id = song_id, play_count = play_count, last_played='1999-01-22')
                 newFav.save()
 
@@ -61,7 +63,7 @@ def settingsPage(request, pagename, vals):
     #Request is a POST
     if 'delete_btn' in request.POST:
         #DELETE FROM Users WHERE id = request.user.id
-        request.user.delete()   #CASCADE
+        request.user.delete()   #CASCADEs
         return HttpResponseRedirect('/')
     if vals is None:
         prefForm = prefsForm(request.POST)
@@ -80,6 +82,7 @@ def settingsPage(request, pagename, vals):
 
         pop_val = prefForm.cleaned_data['popularity']
         genre_val = prefForm.cleaned_data['genre']
+        # SELECT FROM UserPreferences WHERE user=?, request.user
         user_pref = UserPreferences.objects.filter(user=request.user)
         if len(user_pref) != 0:
             user_pref = user_pref[0]
@@ -89,9 +92,11 @@ def settingsPage(request, pagename, vals):
             user_pref.preferred_region = newReg
             user_pref.preferred_popularity = pop_val
             user_pref.preferred_genre = genre_val
+            # UPDATE UserPreferences SET notify_system=?, preferred_region=?, preferred_popularity=?, preferred_genre=?, WHERE user=?
             user_pref.save()
         else:
             # Create new userprefs
+            # INSERT INTO UserPreferences (user, notify_system, preferred_region, preferred_popularity, preferred_genre) VALUES ?,?,?,?,?
             newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
             preferred_region = newReg, preferred_popularity = pop_val, preferred_genre = genre_val)
             newPrefs.save()
@@ -107,6 +112,7 @@ def welcome(request):
     return settingsPage(request, 'welcome.html', None)
 
 def settings(request):
+    # SELECT FROM UserPreferences WHERE user = ?
     currPrefs = UserPreferences.objects.filter(user = request.user)[0]
     currNotify = currPrefs.notify_system
     currReg = currPrefs.preferred_region.name
@@ -185,6 +191,7 @@ def search(request):
 
 def user_profile(request, username):
     if (request.user.is_authenticated() and request.user.username == username):
+        # SELECT FROM Favorites WHERE user = ?
         favList = Favorites.objects.filter(user = request.user)
         favSongList = list()
         for fav in favList:
