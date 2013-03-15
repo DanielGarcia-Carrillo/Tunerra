@@ -9,6 +9,8 @@ urlpatterns = patterns('',
     url(r'^$', 'tunerra.views.index', name='home'),
     url(r'^accounts$', 'tunerra.views.login_signup'),
     url(r'^accounts/welcome$', 'tunerra.views.welcome'),
+    url(r'^accounts/logout$', 'tunerra.views.logout_user'),
+    # Insert RESTful url here for accounts (accounts/[id] or profile/[id]) perhaps?
     # url(r'^myproject/', include('myproject.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

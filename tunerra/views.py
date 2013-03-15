@@ -7,20 +7,20 @@ from django.contrib.auth.models import User
 from tunerra.models import *
 
 def index(request):
-    return render(request,'index.html', RequestContext(request))
-
-class SignupForm(forms.Form):
-    # Putting these attrs here suck
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
-
-class LoginForm(forms.Form):
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+    if request.user.is_authenticated():
+        # TODO this is not what I actually want to happen, I just don't know the
+        return render(request, 'welcome.html', RequestContext(request))
+    else:
+        # Treat them as anonymous user
+        return render(request,'index.html', RequestContext(request))
 
 def welcome(request):
    return render(request, 'welcome.html', RequestContext(request))
+
+def logout_user(request):
+    # Kind of what I'd like to do but actually logout user through Auth system
+    logout(request)
+    return HttpResponseRedirect('/')
 
 def login_signup(request):
     if request.method == 'POST':
@@ -37,6 +37,7 @@ def login_signup(request):
                         password=signup_form.cleaned_data['password']
                     )
                     return HttpResponseRedirect('/accounts/welcome')
+            # Returns current signup_form as env variable so that form errors will show up to user
             return render(request, 'accounts.html', {
                 'signup_form':signup_form,
                 'login_form':LoginForm()
@@ -46,13 +47,14 @@ def login_signup(request):
             if login_form.is_valid():
                 user = authenticate(username=login_form.cleaned_data['username'], password=login_form.cleaned_data['password'])
                 if user is None:
-                    # Return error
+                    # Return error that something is wrong
                     return HttpResponse()
                 else:
                     login(request, user)
-                    # Send to profile
+                    # Send to profile TODO don't know url to redirect
                     return HttpResponse()
             else:
+                # Returns current login_form so that the login form errors will show up to user
                 return render(request, 'accounts.html', {
                     'signup_form':SignupForm(),
                     'login_form':login_form
@@ -66,3 +68,13 @@ def login_signup(request):
 # TODO actually do something useful
 def user_profile(request):
     return render(request, 'base.html', RequestContext(request))
+
+class SignupForm(forms.Form):
+    # Putting these attrs here suck
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
