@@ -82,8 +82,10 @@ class Song(models.Model):
 class Favorites(models.Model):
     user = models.ForeignKey(User)
     hotness_level = models.IntegerField()
-    song_id = models.ForeignKey(Song, unique=True)
+    song_id = models.ForeignKey(Song)
     play_count = models.IntegerField()
     last_played = models.DateTimeField(null=True)
+    class Meta:
+        unique_together=['user', 'song_id']
 
 
