@@ -1,0 +1,12 @@
+{% extends "welcome.html" %}
+{% load staticfiles %}
+    {% block message %}
+        <h3> Settings for {{user.username}}: </h3>
+    {% endblock message %}
+{%block content %}
+    {{block.super}}
+    <div class="control-group field-wrapper">
+        <div class ="controls">
+            <button type="submit" class ="btn btn-large btn-danger" name="delete_btn">
+                DELETE ACCOUNT</button>
+{% endblock content %}
