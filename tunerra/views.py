@@ -2,8 +2,9 @@ from django.template import RequestContext
 from django.shortcuts import render
 from django import forms
 from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from tunerra.models import *
 
 def index(request):
     return render(request,'index.html', RequestContext(request))
@@ -26,8 +27,10 @@ def login_signup(request):
         if request.POST.get('form-name') == 'signup':
             signup_form = SignupForm(request.POST)
             if signup_form.is_valid():
+                # SELECT * FROM SiteUser WHERE username = ?:  signup_form.cleaned_data['username']
                 existing_user = User.objects.filter(username=signup_form.cleaned_data['username'])
                 if not existing_user:
+                    # INSERT INTO User (username, email, password) VALUES (?,?,?): username, email, password
                     new_user = User.objects.create_user(
                         username=signup_form.cleaned_data['username'],
                         email=signup_form.cleaned_data['email'],
@@ -46,6 +49,7 @@ def login_signup(request):
                     # Return error
                     return HttpResponse()
                 else:
+                    login(request, user)
                     # Send to profile
                     return HttpResponse()
             else:
@@ -58,3 +62,7 @@ def login_signup(request):
             'signup_form': SignupForm(),
             'login_form': LoginForm()
         })
+
+# TODO actually do something useful
+def user_profile(request):
+    return render(request, 'base.html', RequestContext(request))
