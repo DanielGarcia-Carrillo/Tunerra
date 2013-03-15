@@ -5,6 +5,9 @@
       <li><a href="/accounts/logout">Logout</a></li>
     </ul>
 {% endblock navbar %}
+{% block navigation %}
+    {{block.super}}
+{% endblock navigation %}
 {% block content %}
 {% block message %}
     <h2>Welcome, {{ user.username }}</h2>
