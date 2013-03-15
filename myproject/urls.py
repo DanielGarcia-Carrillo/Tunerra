@@ -1,14 +1,16 @@
 from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
-from django.contrib import admin
 admin.autodiscover()
+from django.contrib import admin
 
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'tunerra.views.index', name='home'),
     url(r'^accounts$', 'tunerra.views.login_signup'),
     url(r'^accounts/welcome$', 'tunerra.views.welcome'),
+    url(r'^accounts/logout$', 'tunerra.views.logout'),
+    url(r'^sign out$', 'tunerra.views.logout'),
     # url(r'^myproject/', include('myproject.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

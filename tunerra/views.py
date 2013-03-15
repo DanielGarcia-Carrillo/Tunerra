@@ -1,6 +1,8 @@
 from django.template import RequestContext
 from django.shortcuts import render
 from django import forms
+from django.db import models
+from tunerra.models import Song, Favorites, UserPreferences, Region
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -8,6 +10,34 @@ import urllib
 from xml.dom import minidom
 
 last_fm_key = '61994d32a190d0a98684e84d6f38b41a'
+fm_loved_str = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user='
+POPULARITY_CHOICE = {('1', 'Low Popularity'),
+ ('2', 'Normal Popularity'), ('3', 'High Popularity')}
+
+
+
+#Add songs
+def parse_LastFM_love(xmltree, request):
+    #print "WHOLE FILE: " + xmltree.toxml()
+    for lfm in xmltree.getElementsByTagName('lfm'):
+        for lovedSongs in xmltree.getElementsByTagName('lovedtracks'):
+            for song in lfm.getElementsByTagName('track'):
+                title = song.getElementsByTagName('name')[0].firstChild.nodeValue
+                artist = song.getElementsByTagName('artist')[0].getElementsByTagName('name')[0].firstChild.nodeValue
+                newSong = Song(title = title, artist = artist, album='noalb', year ='1999-01-22')
+                newSong.save()
+                newFav = Favorites()
+                user = request.user
+                hotness_level = 0
+                song_id = newSong
+                play_count = 1
+                last_played = song.getElementsByTagName('date')[0].firstChild.nodeValue
+                newFav = Favorites(user = user, hotness_level = hotness_level, song_id = song_id, play_count = play_count, last_played='1999-01-22')
+                newFav.save()
+
+                print "SONGS ARE: " + song.getElementsByTagName('name')[0].firstChild.nodeValue
+
+
 
 def index(request):
     return render(request,'index.html', RequestContext(request))
@@ -23,14 +53,38 @@ class SignupForm(forms.Form):
 class LoginForm(forms.Form):
     #def __init__(self, *args):
     #    super(LoginForm, self).__init__(args, auto_id='id_login_%s')
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required' : True,'placeholder':'Username'}))
     password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+
+def logout(request):
+    logout(request)
+    return redirect(request, 'index.html')
 
 def welcome(request):
     if not request.user.is_authenticated():
         return redirect(request, 'login_error.html')
-    last_fm_form = lastFMForm(request.POST)
-    return render(request, 'welcome.html', {'last_fm_form': last_fm_form} )
+    prefForm = prefsForm(request.POST)
+    if prefForm.is_valid():
+        lastFMusername = prefForm.cleaned_data['LastFMusername']
+        fm_str_req = fm_loved_str + lastFMusername + "&api_key=" + last_fm_key
+        parse_LastFM_love(minidom.parse(urllib.urlopen(fm_str_req)), request) 
+        notify_val = prefForm.cleaned_data['notify_system']
+        region_val = prefForm.cleaned_data['region']
+
+        newReg = Region(region_val)
+        newReg.save()
+
+        pop_val = prefForm.cleaned_data['popularity']
+        genre_val = prefForm.cleaned_data['genre']
+        newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
+            preferred_region = newReg, preferred_popularity = pop_val, preferred_genre = genre_val)
+        newPrefs.save()
+
+
+
+        return HttpResponse()
+    else:
+        return render(request, 'welcome.html', {'prefsForm': prefForm} )
 
 def login_signup(request):
     if request.method == 'POST':
@@ -66,15 +120,12 @@ def login_signup(request):
 
 #Code to log into last FM
 
-class lastFMForm(forms.Form):
-    username = forms.CharField(max_length=50)
-
-def lastFM_Login(request):
-    if request.method == 'POST':
-        last_fm_form = lastFMForm(request.POST)
-        if last_fm_form.is_valid():
-            print last_fm_form.cleaned_data['username']
-
+class prefsForm(forms.Form):
+    notify_system = forms.BooleanField(required=False)
+    region = forms.CharField(max_length=100)
+    popularity = forms.ChoiceField(choices=POPULARITY_CHOICE)
+    genre = forms.CharField(max_length=100)
+    LastFMusername = forms.CharField(max_length=50)
 
 
 
