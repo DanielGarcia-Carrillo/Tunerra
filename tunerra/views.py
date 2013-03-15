@@ -48,11 +48,27 @@ def index(request):
 def login_error(request):
     return render(request, 'login_error.html', RequestContext(request))
 
-def welcome(request):
+def settingsPage(request, pagename, vals):
     if not request.user.is_authenticated():
         return HttpResponseRedirect('/login_error')
-    prefForm = prefsForm(request.POST)
+    if(request.method == 'GET'):
+        if vals is None:
+            prefForm = prefsForm(request.GET)
+            return render(request, pagename, {'prefsForm': prefForm} )
+        prefForm = prefsForm(initial=vals)
+        return render(request, pagename, {'prefsForm': prefForm} )
+    
+    #Request is a POST
+    if 'delete_btn' in request.POST:
+        #DELETE FROM Users WHERE id = request.user.id
+        request.user.delete()   #CASCADE
+        return HttpResponseRedirect('/')
+    if vals is None:
+        prefForm = prefsForm(request.POST)
+    else:
+        prefForm = prefsForm(request.POST)
     if prefForm.is_valid():
+        print "VALID"
         lastFMusername = prefForm.cleaned_data['LastFMusername']
         fm_str_req = fm_loved_str + lastFMusername + "&api_key=" + last_fm_key
         parse_LastFM_love(minidom.parse(urllib.urlopen(fm_str_req)), request) 
@@ -65,6 +81,8 @@ def welcome(request):
         pop_val = prefForm.cleaned_data['popularity']
         genre_val = prefForm.cleaned_data['genre']
         user_pref = UserPreferences.objects.filter(user=request.user)
+        if len(user_pref) != 0:
+            user_pref = user_pref[0]
         if user_pref:
             # Update existing preferences
             user_pref.notify_system = notify_val
@@ -82,7 +100,22 @@ def welcome(request):
 
         return HttpResponseRedirect('/accounts/profile/'+request.user.username)
     else:
-        return render(request, 'welcome.html', {'prefsForm': prefForm} )
+        print "NOT VALID"
+        return render(request, pagename, {'prefsForm': prefForm} )
+
+def welcome(request):
+    return settingsPage(request, 'welcome.html', None)
+
+def settings(request):
+    currPrefs = UserPreferences.objects.filter(user = request.user)[0]
+    currNotify = currPrefs.notify_system
+    currReg = currPrefs.preferred_region.name
+    currGenre = currPrefs.preferred_genre
+    currPop = currPrefs.preferred_popularity
+    vals = {'notify_system': currNotify, 'region': currReg, 
+    'popularity': currPop, 'genre': currGenre, 'LastFMusername': ''}
+
+    return settingsPage(request, 'settings.html', vals)
 
 def logout_user(request):
     # Logs out user through auth system
@@ -139,10 +172,10 @@ def login_signup(request):
 
 class prefsForm(forms.Form):
     notify_system = forms.BooleanField(required=False)
-    region = forms.CharField(max_length=100)
+    region = forms.CharField(max_length=100, initial = 'Chicago')
     popularity = forms.ChoiceField(choices=POPULARITY_CHOICE)
     genre = forms.CharField(max_length=100)
-    LastFMusername = forms.CharField(max_length=50)
+    LastFMusername = forms.CharField(max_length=50, required=False)
 
 
 
@@ -152,7 +185,13 @@ def search(request):
 
 def user_profile(request, username):
     if (request.user.is_authenticated() and request.user.username == username):
-        return render(request, 'profile.html', RequestContext(request))
+        favList = Favorites.objects.filter(user = request.user)
+        favSongList = list()
+        for fav in favList:
+            currSong = fav.song_id
+            print currSong.title
+            favSongList.append(currSong)
+        return render(request, 'profile.html', {'FavList': favSongList})
     else:
         logout(request)
         raise Http404

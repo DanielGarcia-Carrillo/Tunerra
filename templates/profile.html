@@ -2,6 +2,26 @@
 {% load staticfiles %}
 {% block navbar %}
     <ul class="nav pull-right">
+        <li><a href="/accounts/settings">Settings</a><li>
         <li><a href="/accounts/logout">Logout</a></li>
     </ul>
 {% endblock navbar %}
+
+{%block content %}
+
+    <div class = "row-fluid">
+        <div class ="span2"></div>
+        <div class ="span6">
+        <div class = "hero-unit"><h2>Welcome back, {{user.username}}
+        </div>
+            <div class="well">
+                <h3>Favorite songs:</h3>
+                {% for Song in FavList %}
+                    <li>{{Song.title}} - {{Song.artist}}</li>
+                {% endfor %}
+            </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
