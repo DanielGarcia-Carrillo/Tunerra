@@ -37,7 +37,7 @@ def parse_LastFM_love(xmltree, request):
                 newFav = Favorites(user = user, hotness_level = hotness_level, song_id = song_id, play_count = play_count, last_played='1999-01-22')
                 newFav.save()
 
-                print "SONGS ARE: " + song.getElementsByTagName('name')[0].firstChild.nodeValue
+                # print "SONGS ARE: " + song.getElementsByTagName('name')[0].firstChild.nodeValue
 
 
 def index(request):
@@ -70,7 +70,6 @@ def settingsPage(request, pagename, vals):
     else:
         prefForm = prefsForm(request.POST)
     if prefForm.is_valid():
-        print "VALID"
         lastFMusername = prefForm.cleaned_data['LastFMusername']
         fm_str_req = fm_loved_str + lastFMusername + "&api_key=" + last_fm_key
         parse_LastFM_love(minidom.parse(urllib.urlopen(fm_str_req)), request) 
@@ -105,7 +104,6 @@ def settingsPage(request, pagename, vals):
 
         return HttpResponseRedirect('/accounts/profile/'+request.user.username)
     else:
-        print "NOT VALID"
         return render(request, pagename, {'prefsForm': prefForm} )
 
 def welcome(request):
