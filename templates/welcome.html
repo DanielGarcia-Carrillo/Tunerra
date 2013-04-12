@@ -10,10 +10,15 @@
 {% endblock navigation %}
 {% block content %}
 {% block message %}
-    <h2>Welcome, {{ user.username }}</h2>
-    <p>To begin, enter your preferences.</p>
+    <div class="row>">
+      <div class="text-center"></div>
+        <h2>Welcome, {{ user.username }}</h2>
+        <p>To begin, enter your preferences.</p>
+      </div>
+    </div>
 {% endblock message %}
     <div class = "row"><br>
+        <div class="span2"></div>
         <div class="span6"><br>
           <div class = "well">
               <form class ="form-horizontal" method='post'> {% csrf_token %}

@@ -175,15 +175,13 @@ def login_signup(request):
             'login_form': LoginForm()
         })
 
-#Code to log into last FM
-
 class prefsForm(forms.Form):
+    correct_size_text_input = widget=forms.TextInput(attrs={'class':'input-block-level'})
     notify_system = forms.BooleanField(required=False)
-    region = forms.CharField(max_length=100, initial = 'Chicago')
-    popularity = forms.ChoiceField(choices=POPULARITY_CHOICE)
-    genre = forms.CharField(max_length=100)
-    LastFMusername = forms.CharField(max_length=50, required=False)
-
+    region = forms.CharField(max_length=100, initial = 'Chicago', widget=correct_size_text_input)
+    popularity = forms.ChoiceField(choices=POPULARITY_CHOICE, widget=forms.Select(attrs={'class':'input-block-level'}))
+    genre = forms.CharField(max_length=100, widget=correct_size_text_input)
+    LastFMusername = forms.CharField(max_length=50, required=False, widget=correct_size_text_input)
 
 
 def search(request):
@@ -205,11 +203,11 @@ def user_profile(request, username):
         raise Http404
 
 class SignupForm(forms.Form):
-    # Putting these attrs here suck
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+    # Putting these attrs here sucks, but I don't know how else to add all the attrs I want
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username', 'class':'input-block-level'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email', 'class':'input-block-level'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password', 'class':'input-block-level'}))
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username', 'class':'input-block-level'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password', 'class':'input-block-level'}))
