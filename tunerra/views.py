@@ -53,22 +53,21 @@ def login_error(request):
 def settingsPage(request, pagename, vals):
     if not request.user.is_authenticated():
         return HttpResponseRedirect('/login_error')
-    if(request.method == 'GET'):
-        if vals is None:
+    if request.method == 'GET':
+        if vals:
+            prefForm = prefsForm(initial=vals)
+        else:
             prefForm = prefsForm(request.GET)
-            return render(request, pagename, {'prefsForm': prefForm} )
-        prefForm = prefsForm(initial=vals)
         return render(request, pagename, {'prefsForm': prefForm} )
     
     #Request is a POST
-    if 'delete_btn' in request.POST:
+    if 'confirmed-delete' in request.POST:
+        #TODO make sure admins can't be deleted
         #DELETE FROM Users WHERE id = request.user.id
         request.user.delete()   #CASCADEs
         return HttpResponseRedirect('/')
-    if vals is None:
-        prefForm = prefsForm(request.POST)
-    else:
-        prefForm = prefsForm(request.POST)
+
+    prefForm = prefsForm(request.POST)
     if prefForm.is_valid():
         lastFMusername = prefForm.cleaned_data['LastFMusername']
         fm_str_req = fm_loved_str + lastFMusername + "&api_key=" + last_fm_key
@@ -99,9 +98,6 @@ def settingsPage(request, pagename, vals):
             newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
             preferred_region = newReg, preferred_popularity = pop_val, preferred_genre = genre_val)
             newPrefs.save()
-
-
-
         return HttpResponseRedirect('/accounts/profile/'+request.user.username)
     else:
         return render(request, pagename, {'prefsForm': prefForm} )
@@ -109,15 +105,22 @@ def settingsPage(request, pagename, vals):
 def welcome(request):
     return settingsPage(request, 'welcome.html', None)
 
+def facebook_api(request):
+    return render(request, 'channel.html', RequestContext(request))
+
 def settings(request):
     # SELECT FROM UserPreferences WHERE user = ?
-    currPrefs = UserPreferences.objects.filter(user = request.user)[0]
+    currPrefs = UserPreferences.objects.filter(user = request.user)
+    if not currPrefs:
+        return settingsPage(request, 'settings.html', None)
+    currPrefs = currPrefs[0]
     currNotify = currPrefs.notify_system
     currReg = currPrefs.preferred_region.name
     currGenre = currPrefs.preferred_genre
     currPop = currPrefs.preferred_popularity
+    lastFM_username = currPrefs.last_fmName
     vals = {'notify_system': currNotify, 'region': currReg, 
-    'popularity': currPop, 'genre': currGenre, 'LastFMusername': ''}
+    'popularity': currPop, 'genre': currGenre, 'LastFMusername': lastFM_username}
 
     return settingsPage(request, 'settings.html', vals)
 

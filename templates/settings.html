@@ -4,9 +4,71 @@
         <h3> Settings for {{user.username}}: </h3>
     {% endblock message %}
 {%block content %}
+    <script>
+      function facebook_login() {
+          FB.login(function(response) {
+              if (response.authResponse) {
+                  // connected
+              } else {
+                  // cancelled
+              }
+          });
+      }
+      window.fbAsyncInit = function() {
+          FB.init({
+              appId      : '123970121128960', // App ID
+              channelUrl : '//www.tunerra.com/channel.html', // Channel File
+              status     : true, // check login status
+              cookie     : true, // enable cookies to allow the server to access the session
+              xfbml      : true  // parse XFBML
+          });
+
+          // Additional init code here
+          FB.getLoginStatus(function(response) {
+              if (response.status === 'connected') {
+                  // connected
+              } else if (response.status === 'not_authorized') {
+                  // not_authorized
+                  facebook_login();
+              } else {
+                  // not_logged_in
+                  facebook_login();
+              }
+          });
+      };
+
+      // Load the SDK Asynchronously
+      (function(d){
+          var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+          if (d.getElementById(id)) {return;}
+          js = d.createElement('script'); js.id = id; js.async = true;
+          js.src = "//connect.facebook.net/en_US/all.js";
+          ref.parentNode.insertBefore(js, ref);
+      }(document));
+    </script>
+
     {{block.super}}
     <div class="control-group field-wrapper">
         <div class ="controls">
-            <button type="submit" class ="btn btn-large btn-danger" name="delete_btn">
+            <button class="btn btn-large btn-danger" role="dialog" data-toggle="modal" href="#delete-dialog" id="delete-button">
                 DELETE ACCOUNT</button>
+        </div>
+    </div>
+
+    <!-- Modal for confirming account deletion -->
+    <div class="modal hide fade" id="delete-dialog" tabindex="-1" role="dialog" aria-labelledby="delete-modal-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3 id='delete-modal-label'>Account Deletion</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you really sure that you want to delete your account?</p>
+        </div>
+        <div class="modal-footer">
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancel</a>
+            <a class="btn btn-primary" type="submit" name="confirmed-delete">Delete</a>
+        </div>
+    </div>
+    <div id="fb-root"></div>
+
 {% endblock content %}
