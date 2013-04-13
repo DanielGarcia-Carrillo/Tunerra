@@ -17,40 +17,93 @@
       </div>
     </div>
 {% endblock message %}
+    <div id="fb-root"></div>
+    <script>
+    function facebook_login() {
+        FB.login(function(response) {
+            if (response.authResponse) {
+                // connected
+                alert("you have not authorized us to user your facebook credentials");
+            } else {
+                // cancelled
+                alert("You are not logged into facebook");
+            }
+        });
+    }
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '123970121128960', // App ID
+            channelUrl : '//www.tunerra.com/channel.html', // Channel File
+            status     : true, // check login status
+            cookie     : true, // enable cookies to allow the server to access the session
+            xfbml      : true  // parse XFBML
+        });
+
+        // Additional init code here
+        FB.getLoginStatus(function(response) {
+            if (response.status === 'connected') {
+                // connected
+                alert("You are logged into facebook");
+            } else if (response.status === 'not_authorized') {
+                // not_authorized
+                facebook_login();
+            } else {
+                // not_logged_in
+                facebook_login();
+            }
+        });
+    };
+
+    // Load the SDK Asynchronously
+    (function(d){
+        var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement('script'); js.id = id; js.async = true;
+        js.src = "//connect.facebook.net/en_US/all.js";
+        ref.parentNode.insertBefore(js, ref);
+    }(document));
+    </script>
     <div class = "row"><br>
-        <div class="span2"></div>
-        <div class="span6"><br>
-          <div class = "well">
-              <form class ="form-horizontal" method='post'> {% csrf_token %}
-                  {{ last_fm_form.non_field_errors }}
-              <label class = "control-label" for ="{{prefsform.notify_system}}">Receive Notifications:</label>
-              <div class = "controls">
-                  {{prefsForm.notify_system}}
-              </div><br><br>
-              <label class = "control-label" for ="{{prefsform.region}}">Enter your region:</label>
-              <div class = "controls">
-                  {{prefsForm.region}}
-              </div><br><br>
-              <label class = "control-label" for ="{{prefsform.popularity}}">Choose default popularity level:</label><br>
-              <div class = "controls">
-                  {{prefsForm.popularity}}
-              </div><br /><br />
-              <label class = "control-label" for ="{{prefsform.genre}}">Enter one genre of music you listen to  <font size="1">(don't worry - you can choose more later!)</font></label><br>
-              <div class = "controls">
-                  {{prefsForm.genre}}
-              </div><br><br>
-              <label class = "control-label" for="{{ prefsForm.LastFMusername.auto_id}}">LastFM username:</label>
-              <div class="controls">
-                  {{prefsForm.LastFMusername}}
-              </div><br>
-              <div class="control-group field-wrapper">
-                  <div class="controls">
-                      <button type="submit" class ="btn btn-primary">Save changes</button>
-                      <button class ="btn">Cancel</button>
-                  </div>
-              </div>
-          </div>
+      <div class="span2"></div>
+      <div class="span6"><br>
+        <div class = "well">
+          <form class ="form-horizontal" method='post'> {% csrf_token %}
+              {{ last_fm_form.non_field_errors }}
+            <label class = "control-label" for ="{{prefsform.notify_system}}">Receive Notifications:</label>
+            <div class = "controls">
+                {{prefsForm.notify_system}}
+            </div><br><br>
+            <label class = "control-label" for ="{{prefsform.region}}">Enter your region:</label>
+            <div class = "controls">
+                {{prefsForm.region}}
+            </div><br><br>
+            <label class = "control-label" for ="{{prefsform.popularity}}">Choose default popularity level:</label><br>
+            <div class = "controls">
+                {{prefsForm.popularity}}
+            </div><br /><br />
+            <label class = "control-label" for ="{{prefsform.genre}}">Enter one genre of music you listen to  <font size="1">(don't worry - you can choose more later!)</font></label><br>
+            <div class = "controls">
+                {{prefsForm.genre}}
+            </div><br><br>
+            <label class = "control-label" for="{{ prefsForm.LastFMusername.auto_id}}">LastFM username:</label>
+            <div class="controls">
+                {{prefsForm.LastFMusername}}
+            </div><br>
+            <div class="control-group field-wrapper">
+                <div class="controls">
+                    <button type="submit" class ="btn btn-primary">Save changes</button>
+                    <button class ="btn">Cancel</button>
+                </div>
+            </div>
+          </form>
+          <input type="button" class="facebook-connect"><br><br>
         </div>
+      </div>
     </div>
+    <script>
+      $(".facebook-connect").click(function(){
+
+      });
+    </script>
     {{block.super}}
 {% endblock content %}
