@@ -25,6 +25,7 @@ def parse_LastFM_love(xmltree, request):
                 title = song.getElementsByTagName('name')[0].firstChild.nodeValue
                 artist = song.getElementsByTagName('artist')[0].getElementsByTagName('name')[0].firstChild.nodeValue
                 newSong = Song(title = title, artist = artist, album='noalb', year ='1999-01-22')
+                # INSERT INTO Song (title, artist, album, year) VALUES ?,?,'noalb', '1999-01-22;  title artist
                 newSong.save()
                 newFav = Favorites()
                 user = request.user
@@ -32,10 +33,11 @@ def parse_LastFM_love(xmltree, request):
                 song_id = newSong
                 play_count = 1
                 last_played = song.getElementsByTagName('date')[0].firstChild.nodeValue
+                # INSERT INTO Favorites (user, hotness_level, song_id, play_count, last_played) VALUES ?,?,?,?,'1999-01-22'
                 newFav = Favorites(user = user, hotness_level = hotness_level, song_id = song_id, play_count = play_count, last_played='1999-01-22')
                 newFav.save()
 
-                print "SONGS ARE: " + song.getElementsByTagName('name')[0].firstChild.nodeValue
+                # print "SONGS ARE: " + song.getElementsByTagName('name')[0].firstChild.nodeValue
 
 
 def index(request):
@@ -55,24 +57,22 @@ def login_error(request):
 def settingsPage(request, pagename, vals):
     if not request.user.is_authenticated():
         return HttpResponseRedirect('/login_error')
-    if(request.method == 'GET'):
-        if vals is None:
+    if request.method == 'GET':
+        if vals:
+            prefForm = prefsForm(initial=vals)
+        else:
             prefForm = prefsForm(request.GET)
-            return render(request, pagename, {'prefsForm': prefForm} )
-        prefForm = prefsForm(initial=vals)
         return render(request, pagename, {'prefsForm': prefForm} )
     
     #Request is a POST
-    if 'delete_btn' in request.POST:
+    if 'confirmed-delete' in request.POST:
+        #TODO make sure admins can't be deleted
         #DELETE FROM Users WHERE id = request.user.id
-        request.user.delete()   #CASCADE
+        request.user.delete()   #CASCADEs
         return HttpResponseRedirect('/')
-    if vals is None:
-        prefForm = prefsForm(request.POST)
-    else:
-        prefForm = prefsForm(request.POST)
+
+    prefForm = prefsForm(request.POST)
     if prefForm.is_valid():
-        print "VALID"
         lastFMusername = prefForm.cleaned_data['LastFMusername']
         fm_str_req = fm_loved_str + lastFMusername + "&api_key=" + last_fm_key
         parse_LastFM_love(minidom.parse(urllib.urlopen(fm_str_req)), request) 
@@ -84,6 +84,7 @@ def settingsPage(request, pagename, vals):
 
         pop_val = prefForm.cleaned_data['popularity']
         genre_val = prefForm.cleaned_data['genre']
+        # SELECT FROM UserPreferences WHERE user=?, request.user
         user_pref = UserPreferences.objects.filter(user=request.user)
         if len(user_pref) != 0:
             user_pref = user_pref[0]
@@ -93,31 +94,37 @@ def settingsPage(request, pagename, vals):
             user_pref.preferred_region = newReg
             user_pref.preferred_popularity = pop_val
             user_pref.preferred_genre = genre_val
+            # UPDATE UserPreferences SET notify_system=?, preferred_region=?, preferred_popularity=?, preferred_genre=?, WHERE user=?
             user_pref.save()
         else:
             # Create new userprefs
+            # INSERT INTO UserPreferences (user, notify_system, preferred_region, preferred_popularity, preferred_genre) VALUES ?,?,?,?,?
             newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
             preferred_region = newReg, preferred_popularity = pop_val, preferred_genre = genre_val)
             newPrefs.save()
-
-
-
         return HttpResponseRedirect('/accounts/profile/'+request.user.username)
     else:
-        print "NOT VALID"
         return render(request, pagename, {'prefsForm': prefForm} )
 
 def welcome(request):
     return settingsPage(request, 'welcome.html', None)
 
+def facebook_api(request):
+    return render(request, 'channel.html', RequestContext(request))
+
 def settings(request):
-    currPrefs = UserPreferences.objects.filter(user = request.user)[0]
+    # SELECT FROM UserPreferences WHERE user = ?
+    currPrefs = UserPreferences.objects.filter(user = request.user)
+    if not currPrefs:
+        return settingsPage(request, 'settings.html', None)
+    currPrefs = currPrefs[0]
     currNotify = currPrefs.notify_system
     currReg = currPrefs.preferred_region.name
     currGenre = currPrefs.preferred_genre
     currPop = currPrefs.preferred_popularity
+    lastFM_username = currPrefs.last_fmName
     vals = {'notify_system': currNotify, 'region': currReg, 
-    'popularity': currPop, 'genre': currGenre, 'LastFMusername': ''}
+    'popularity': currPop, 'genre': currGenre, 'LastFMusername': lastFM_username}
 
     return settingsPage(request, 'settings.html', vals)
 
@@ -172,15 +179,13 @@ def login_signup(request):
             'login_form': LoginForm()
         })
 
-#Code to log into last FM
-
 class prefsForm(forms.Form):
+    correct_size_text_input = widget=forms.TextInput(attrs={'class':'input-block-level'})
     notify_system = forms.BooleanField(required=False)
-    region = forms.CharField(max_length=100, initial = 'Chicago')
-    popularity = forms.ChoiceField(choices=POPULARITY_CHOICE)
-    genre = forms.CharField(max_length=100)
-    LastFMusername = forms.CharField(max_length=50, required=False)
-
+    region = forms.CharField(max_length=100, initial = 'Chicago', widget=correct_size_text_input)
+    popularity = forms.ChoiceField(choices=POPULARITY_CHOICE, widget=forms.Select(attrs={'class':'input-block-level'}))
+    genre = forms.CharField(max_length=100, widget=correct_size_text_input)
+    LastFMusername = forms.CharField(max_length=50, required=False, widget=correct_size_text_input)
 
 
 def search(request):
@@ -189,11 +194,12 @@ def search(request):
 
 def user_profile(request, username):
     if (request.user.is_authenticated() and request.user.username == username):
+        # SELECT FROM Favorites WHERE user = ?
         favList = Favorites.objects.filter(user = request.user)
         favSongList = list()
         for fav in favList:
             currSong = fav.song_id
-            print currSong.title
+            # print currSong.title
             favSongList.append(currSong)
         return render(request, 'profile.html', {'FavList': favSongList})
     else:
@@ -201,11 +207,11 @@ def user_profile(request, username):
         raise Http404
 
 class SignupForm(forms.Form):
-    # Putting these attrs here suck
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+    # Putting these attrs here sucks, but I don't know how else to add all the attrs I want
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username', 'class':'input-block-level'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email', 'class':'input-block-level'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password', 'class':'input-block-level'}))
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username', 'class':'input-block-level'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password', 'class':'input-block-level'}))

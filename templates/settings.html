@@ -1,12 +1,40 @@
 {% extends "welcome.html" %}
 {% load staticfiles %}
     {% block message %}
-        <h3> Settings for {{user.username}}: </h3>
+        <div class="row">
+          <div class="span4"></div>
+          <div class="span8">
+            <h3> Settings for {{user.username}} </h3>
+          </div>
+        </div>
     {% endblock message %}
 {%block content %}
     {{block.super}}
-    <div class="control-group field-wrapper">
-        <div class ="controls">
-            <button type="submit" class ="btn btn-large btn-danger" name="delete_btn">
-                DELETE ACCOUNT</button>
+    <div class="row">
+      <div class="span2"></div>
+      <div class="span6">
+        <div class="control-group field-wrapper">
+            <div class ="controls">
+                <button class="btn btn-large btn-danger" role="dialog" data-toggle="modal" href="#delete-dialog" id="delete-button">
+                    DELETE ACCOUNT</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for confirming account deletion -->
+    <div class="modal hide fade" id="delete-dialog" tabindex="-1" role="dialog" aria-labelledby="delete-modal-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3 id='delete-modal-label'>Account Deletion</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you really sure that you want to delete your account?</p>
+        </div>
+        <div class="modal-footer">
+            <a class="btn" data-dismiss="modal" aria-hidden="true">Cancel</a>
+            <button class="btn btn-danger" type="submit" name="confirmed-delete">Delete</button>
+        </div>
+    </div>
+
 {% endblock content %}
