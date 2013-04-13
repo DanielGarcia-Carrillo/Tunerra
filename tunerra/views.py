@@ -40,10 +40,14 @@ def parse_LastFM_love(xmltree, request):
 
 def index(request):
     if request.user.is_authenticated():
-        return HttpResponseRedirect('/accounts/profile/'+request.user.username)
+        return render(request, 'map.html', RequestContext(request))
+        #return HttpResponseRedirect('/accounts/profile/'+request.user.username)
     else:
         # Treat them as anonymous user
         return render(request, 'index.html', RequestContext(request))
+    
+def map_page(request):
+    return render(request, 'map.html')
 
 def login_error(request):
     return render(request, 'login_error.html', RequestContext(request))
