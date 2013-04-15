@@ -49,7 +49,7 @@ def index(request):
         return render(request, 'index.html', RequestContext(request))
     
 def map_page(request):
-    return render(request, 'map.html')
+    return render(request, 'map.html', {'username': request.user.username})
 
 def login_error(request):
     return render(request, 'login_error.html', RequestContext(request))

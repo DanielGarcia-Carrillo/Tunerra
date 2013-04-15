@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     url(r'^login_error$', 'tunerra.views.login_error'),
     url(r'^accounts/settings$', 'tunerra.views.settings'),
     url(r'^accounts/facebook_connect', facebook_connect.as_view),
+    url(r'^map', 'tunerra.views.map_page'),
 
     url(r'^channel.html$', 'tunerra.views.facebook_api'),
 

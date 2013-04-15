@@ -12,3 +12,7 @@ input.facebook-connect {
 input.google-connect {
 
 }
+
+#map-canvas{
+	left: 100px; top:100px; height: 80%; width:85%; margin:10px
+}
