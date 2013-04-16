@@ -2,7 +2,11 @@
 {% load staticfiles %}
 {% block navbar %}
     <ul class="nav pull-right">
-      <li><a href="/accounts">Signup/Login</a></li>
+      {% if user.is_authenticated %}
+        <li><a href="/accounts/logout">Logout</a></li>
+      {% else %}
+        <li><a href="/accounts">Signup/Login</a></li>
+      {% endif %}
     </ul>
 {% endblock navbar %}
 {% block content %}
