@@ -8,12 +8,12 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'tunerra.views.index', name='home'),
-    url(r'^search$', search_views.search.as_view),
+    url(r'^search$', search_views.search.as_view()),
 
     url(r'^accounts$', 'tunerra.views.login_signup'),
     url(r'^accounts/welcome$', 'tunerra.views.welcome'),
     url(r'^accounts/logout$', 'tunerra.views.logout_user'),
-    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})$', profile_views.ProfilePage.as_view),
+    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})$', profile_views.ProfilePage.as_view()),
     url(r'^login_error$', 'tunerra.views.login_error'),
     url(r'^accounts/settings$', 'tunerra.views.settings'),
     url(r'^accounts/facebook_connect', social_views.facebook_connect.as_view()),
