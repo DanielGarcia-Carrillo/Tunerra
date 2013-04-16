@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% block navbar %}
     <ul class="nav pull-right">
-        <li><a href="/accounts/profile/{{ username }}">Profile</a><li>
+        <li><a href="/accounts/profile/{{ user.username }}">Profile</a><li>
         <li><a href="/accounts/logout">Logout</a></li>
     </ul>
 {% endblock navbar %}
