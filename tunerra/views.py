@@ -1,7 +1,6 @@
 from django.template import RequestContext
 from django.shortcuts import render
 from django import forms
-from django.db import models
 from tunerra.models import Song, Favorites, UserPreferences, Region
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
@@ -105,9 +104,6 @@ def settingsPage(request, pagename, vals):
 def welcome(request):
     return settingsPage(request, 'welcome.html', None)
 
-def facebook_api(request):
-    return render(request, 'channel.html', RequestContext(request))
-
 def settings(request):
     # SELECT FROM UserPreferences WHERE user = ?
     currPrefs = UserPreferences.objects.filter(user = request.user)
@@ -182,25 +178,6 @@ class prefsForm(forms.Form):
     popularity = forms.ChoiceField(choices=POPULARITY_CHOICE, widget=forms.Select(attrs={'class':'input-block-level'}))
     genre = forms.CharField(max_length=100, widget=correct_size_text_input)
     LastFMusername = forms.CharField(max_length=50, required=False, widget=correct_size_text_input)
-
-
-def search(request):
-    # TODO currently just sends to search page, should also populate with results
-    return render(request, 'results.html', RequestContext(request))
-
-def user_profile(request, username):
-    if (request.user.is_authenticated() and request.user.username == username):
-        # SELECT FROM Favorites WHERE user = ?
-        favList = Favorites.objects.filter(user = request.user)
-        favSongList = list()
-        for fav in favList:
-            currSong = fav.song_id
-            # print currSong.title
-            favSongList.append(currSong)
-        return render(request, 'profile.html', {'FavList': favSongList})
-    else:
-        logout(request)
-        raise Http404
 
 class SignupForm(forms.Form):
     # Putting these attrs here sucks, but I don't know how else to add all the attrs I want
