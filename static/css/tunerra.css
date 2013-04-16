@@ -14,3 +14,7 @@ input.facebook-connect {
     max-width:100%;
     min-width:100%;
 }
+
+#map-canvas{
+    left: 100px; top:100px; height: 80%; width:85%; margin:10px
+}
