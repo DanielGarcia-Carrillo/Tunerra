@@ -36,17 +36,17 @@ class Song(models.Model):
     genre = models.ForeignKey(Genre)
     track_number = models.IntegerField(max_length=5)
     bpm = models.IntegerField(max_length=4)
-    length = models.CharField(max_length=6)
+    length = models.CharField(max_length=8)
     provider = models.ForeignKey(MetadataProvider)
     provider_track_id = models.CharField(max_length=100)
     class Meta:
         unique_together=['artist', 'title']
 
 class Post(models.Model):
-  user = models.ForeignKey(User)
-  title = models.CharField(max_length=1500)
-  song = models.ForeignKey(Song)
-  likes = models.IntegerField()
+    user = models.ForeignKey(User)
+    body = models.CharField(max_length=1500)
+    likes = models.IntegerField()
+    creation_time = models.DateTimeField(auto_now_add=True)
 
 class Favorites(models.Model):
     user = models.ForeignKey(User)

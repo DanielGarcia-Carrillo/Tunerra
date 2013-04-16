@@ -9,10 +9,12 @@ input.facebook-connect {
     padding-left: 127px;     /* make text start to the right of the image */
     vertical-align: middle; /* align the text vertically centered */
 }
-input.google-connect {
 
+.post-box textarea {
+    max-width:100%;
+    min-width:100%;
 }
 
 #map-canvas{
-	left: 100px; top:100px; height: 80%; width:85%; margin:10px
+    left: 100px; top:100px; height: 80%; width:85%; margin:10px
 }
