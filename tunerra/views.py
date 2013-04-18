@@ -48,7 +48,13 @@ def index(request):
         return render(request, 'index.html', RequestContext(request))
     
 def map_page(request):
-    return render(request, 'map.html', {'username': request.user.username})
+    currPrefs = UserPreferences.objects.filter(user = request.user)
+    if not currPrefs:
+        return render(request, 'map.html', None)
+    else:
+        currPrefs = currPrefs[0]
+        currRegion = currPrefs.preferred_region.name
+        return render(request, 'map.html', {'username': request.user.username, 'currRegion': currRegion})
 
 def login_error(request):
     return render(request, 'login_error.html', RequestContext(request))
