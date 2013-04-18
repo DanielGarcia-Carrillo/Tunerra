@@ -42,11 +42,33 @@ class Song(models.Model):
     class Meta:
         unique_together=['artist', 'title']
 
+    def __unicode__(self):
+        return u'%s - %s - %s' % (self.title, self.album.name, self.artist.name)
+
+
 class Post(models.Model):
+    TYPES = (
+        ('U', 'User post'),
+        ('M', 'Music recommendation'),
+        ('F', 'Follow recommendation'),
+    )
     user = models.ForeignKey(User)
     body = models.CharField(max_length=1500)
     likes = models.IntegerField()
     creation_time = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(max_length=2, choices=TYPES)
+    song = models.ForeignKey(Song, null=True)
+    follow_rec = models.ForeignKey(User, null=True, related_name="follow_rec")
+
+    # These are constraints on the model to make sure that one recommendation field is null if the other type is used
+    def save(self, *args, **kwargs):
+        if (self.type == 'U' and not self.song and not self.follow_rec) or \
+        (self.type == 'M' and self.song and not self.follow_rec) or \
+        (self.type == 'F' and not self.song and self.follow_rec):
+            super(Post, self).save()
+        else:
+            raise Exception, "This is not a valid post"
+
 
 class Favorites(models.Model):
     user = models.ForeignKey(User)

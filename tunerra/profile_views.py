@@ -2,7 +2,7 @@ from django.views.generic import View
 from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth import logout
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from tunerra import models
 from django import forms
 
@@ -12,29 +12,51 @@ class ProfilePage(View):
         if request.user.is_authenticated():
             form = PostForm(request.POST)
             if form.is_valid():
-                saved_post = models.Post(user=request.user, body=form.cleaned_data['body'], likes=0)
+                saved_post = models.Post(user=request.user, body=form.cleaned_data['body'], likes=0, type='U')
                 saved_post.save()
-                return render(request, 'profile.html', RequestContext(request, {'post_form': PostForm()}))
+                profile_context = self.page_context(request)
+                profile_context.update({'post_form': PostForm()})
+                return render(request, 'profile.html', RequestContext(request, profile_context))
             else:
-                return render(request, 'profile.html', RequestContext(request, {'post_form': form}))
+                profile_context = self.page_context(request)
+                profile_context.update({'post_form': form})
+                return render(request, 'profile.html', RequestContext(request, profile_context))
         else:
             # TODO throw some error or something
             pass
 
     # GETting the profile page just displays it
     def get(self, request, *args, **kwargs):
-        if (request.user.is_authenticated() and request.user.username == kwargs['username']):
-            # SELECT FROM Favorites WHERE user = ?
-            favList = models.Favorites.objects.filter(user=request.user)
-            favSongList = list()
-            for fav in favList:
-                currSong = fav.song_id
-                # print currSong.title
-                favSongList.append(currSong)
-            return render(request, 'profile.html', {'FavList': favSongList, 'post_form': PostForm()})
+        if request.user.is_authenticated() and request.user.username == kwargs['username']:
+            profile_context = self.page_context(request)
+            profile_context.update({'post_form': PostForm()})
+            return render(request, 'profile.html', RequestContext(request, profile_context))
         else:
             logout(request)
             raise Http404
+
+    def page_context(self, request):
+        # SELECT FROM Favorites WHERE user = ?
+        favList = models.Favorites.objects.filter(user=request.user)
+        favSongList = list()
+        for fav in favList:
+            currSong = fav.song_id
+            # print currSong.title
+            favSongList.append(currSong)
+
+        # Order posts by descending creation_time order and get 10 latest TODO respond to pagination, ie get later pages on request
+        posts = models.Post.objects.order_by('-creation_time')[:10]
+        profile_posts = list()
+        for p in posts:
+            post_dict = {'body': p.body,
+                         'likes': p.likes,
+                         'time': p.creation_time,
+                         'type': p.type,
+                         'recommendation': p.follow_rec if p.follow_rec else p.song
+            }
+            profile_posts.append(post_dict)
+
+        return {'FavList': favSongList, 'profile_posts': profile_posts}
 
 class PostForm(forms.Form):
     body = forms.CharField(max_length=1500, widget=forms.Textarea(attrs={'placeholder':'What are you listening to right now?', 'rows':'2'}))
