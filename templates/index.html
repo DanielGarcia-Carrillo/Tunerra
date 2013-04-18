@@ -3,9 +3,10 @@
 {% block navbar %}
     <ul class="nav pull-right">
       {% if user.is_authenticated %}
-        <li><a href="/accounts/logout">Logout</a></li>
+        <li><a href="/accounts/profile/{{ user.username }}">Profile</a></li>
+        <li><a href="{% url "logout" %}">Logout</a></li>
       {% else %}
-        <li><a href="/accounts">Signup/Login</a></li>
+        <li><a href="{% url "login_signup" %}">Signup/Login</a></li>
       {% endif %}
     </ul>
 {% endblock navbar %}

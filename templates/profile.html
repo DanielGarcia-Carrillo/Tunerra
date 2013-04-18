@@ -3,13 +3,13 @@
 {% block navbar %}
     <ul class="nav pull-right">
         <li>
-            <form class="navbar-search pull-left" action="/search" method="get">
+            <form class="navbar-search pull-left" action="{% url "search" %}" method="get">
                 <input type="text" class="search-query" placeholder="Get Recommendations">
             </form>
         </li>
-        <li><a href="/map_page">Map</a></li>
-        <li><a href="/accounts/settings">Settings</a><li>
-        <li><a href="/accounts/logout">Logout</a></li>
+        <li><a href="{% url "map" %}">Map</a></li>
+        <li><a href="{% url "settings" %}">Settings</a><li>
+        <li><a href="{% url "logout" %}">Logout</a></li>
     </ul>
 {% endblock navbar %}
 
@@ -26,7 +26,7 @@
                 {% endfor %}
             </div>
             <div class="well post-box">
-                  <form action="/accounts/profile/{{ user.username }}" method="post"> {% csrf_token %}
+                  <form method="post"> {% csrf_token %}
                       {{ post_form.non_field_errors }}
                       {{ post_form.body.errors }}
                       {{ post_form.body }}
@@ -37,7 +37,14 @@
             </div>
             <div class="well" id="profile-posts">
                  {% for post in profile_posts %}
-
+                   <p>{{ post.body }}
+                   {{ post.likes }}
+                   {{ post.time }}
+                   {% if post.type == 'S' %}
+                     {{ post.recommendation }}
+                   {% elif post.type == 'M' %}
+                     {{ post.recommendation }}
+                   {% endif %}</p>
                  {% endfor %}
             </div>
         </div>
