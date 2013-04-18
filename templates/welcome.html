@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% block navbar %}
     <ul class="nav pull-right">
-      <li><a href="/accounts/logout">Logout</a></li>
+      <li><a href="{% url "logout" %}">Logout</a></li>
     </ul>
 {% endblock navbar %}
 {% block navigation %}
@@ -10,7 +10,7 @@
 {% endblock navigation %}
 {% block content %}
 {% block message %}
-    <div class="row>">
+    <div class="row">
       <div class="text-center"></div>
         <h2>Welcome, {{ user.username }}</h2>
         <p>To begin, enter your preferences.</p>

@@ -6,7 +6,8 @@ from django.http import Http404, HttpResponseRedirect
 from tunerra import models
 from django import forms
 
-class ProfilePage(View):
+
+class FeedPage(View):
     # POSTing to the profile page is literally for making posts on a profile
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated():
@@ -16,11 +17,11 @@ class ProfilePage(View):
                 saved_post.save()
                 profile_context = self.page_context(request)
                 profile_context.update({'post_form': PostForm()})
-                return render(request, 'profile.html', RequestContext(request, profile_context))
+                return render(request, 'feed.html', RequestContext(request, profile_context))
             else:
                 profile_context = self.page_context(request)
                 profile_context.update({'post_form': form})
-                return render(request, 'profile.html', RequestContext(request, profile_context))
+                return render(request, 'feed.html', RequestContext(request, profile_context))
         else:
             # TODO throw some error or something
             pass
@@ -30,7 +31,7 @@ class ProfilePage(View):
         if request.user.is_authenticated() and request.user.username == kwargs['username']:
             profile_context = self.page_context(request)
             profile_context.update({'post_form': PostForm()})
-            return render(request, 'profile.html', RequestContext(request, profile_context))
+            return render(request, 'feed.html', RequestContext(request, profile_context))
         else:
             logout(request)
             raise Http404
@@ -45,7 +46,7 @@ class ProfilePage(View):
             favSongList.append(currSong)
 
         # Order posts by descending creation_time order and get 10 latest TODO respond to pagination, ie get later pages on request
-        posts = models.Post.objects.order_by('-creation_time')[:10]
+        posts = models.Post.objects.filter(user=request.user).order_by('-creation_time')[:10]
         profile_posts = list()
         for p in posts:
             post_dict = {'body': p.body,
@@ -58,5 +59,7 @@ class ProfilePage(View):
 
         return {'FavList': favSongList, 'profile_posts': profile_posts}
 
+
 class PostForm(forms.Form):
-    body = forms.CharField(max_length=1500, widget=forms.Textarea(attrs={'placeholder':'What are you listening to right now?', 'rows':'2'}))
+    artist = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'artist'}))
+    title = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'title'}))
