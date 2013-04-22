@@ -29,11 +29,11 @@
                   <form method="post"> {% csrf_token %}
                       {{ post_form.non_field_errors }}
                       {{ post_form.title.errors }}
-                      {{ post_form.title }}
+                      {{ post_form.title }}<br />
                       {{ post_form.artist.errors }}
-                      {{ post_form.arist }}
+                      {{ post_form.arist }}<br />
                       {{ post_form.album.errors }}
-                      {{ post_form.album }}
+                      {{ post_form.album }}<br />
                       {{ post_form.body.errors }}
                       {{ post_form.body }}
                       <div class="form-actions">

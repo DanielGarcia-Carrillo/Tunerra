@@ -5,6 +5,10 @@ from django.contrib.auth.models import User
 class Region(models.Model):
     name = models.CharField(max_length=100, primary_key=True, unique=True)
 
+    def __unicode__(self):
+        return self.name
+
+
 class UserPreferences(models.Model):
     user = models.OneToOneField(User)
     notify_system = models.CharField(max_length=100)
@@ -14,19 +18,35 @@ class UserPreferences(models.Model):
     last_fmName = models.CharField(max_length=300)
 
 class Genre(models.Model):
-  name = models.CharField(max_length=100, unique=True)
-  popularity = models.DecimalField(max_digits=10, decimal_places=6)
+    name = models.CharField(max_length=100, unique=True)
+    popularity = models.DecimalField(max_digits=10, decimal_places=6)
+
+    def __unicode__(self):
+        return self.name
+
 
 class Album(models.Model):
     name = models.CharField(max_length=100, unique=True)
     cover_art_url = models.URLField()
     year = models.DateField(auto_now=False)
 
+    def __unicode__(self):
+        return u"%s %s" % (self.name, self.year)
+
+
 class Artist(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
+    def __unicode__(self):
+        return self.name
+
+
 class MetadataProvider(models.Model):
     name = models.CharField(max_length=50, unique=True)
+
+    def __unicode__(self):
+        return self.name
+
 
 class Song(models.Model):
     title = models.CharField(max_length=100)
@@ -46,28 +66,31 @@ class Song(models.Model):
         return u'%s - %s - %s' % (self.title, self.album.name, self.artist.name)
 
 
-class Post(models.Model):
-    TYPES = (
-        ('U', 'User post'),
-        ('M', 'Music recommendation'),
-        ('F', 'Follow recommendation'),
-    )
+class Recommendation(models.Model):
     user = models.ForeignKey(User)
-    body = models.CharField(max_length=1500)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    user_liked = models.BooleanField()
+
+    class Meta:
+        abstract = True
+
+
+class MusicRecommendation(Recommendation):
+    song = models.ForeignKey(Song)
+
+
+class FollowRecommendation(Recommendation):
+    follow_user = models.ForeignKey(User, related_name="follow_user")
+
+
+class Post(models.Model):
+    user = models.ForeignKey(User)
+    song = models.ForeignKey(Song)
     likes = models.IntegerField()
     creation_time = models.DateTimeField(auto_now_add=True)
-    type = models.CharField(max_length=2, choices=TYPES)
-    song = models.ForeignKey(Song, null=True)
-    follow_rec = models.ForeignKey(User, null=True, related_name="follow_rec")
 
-    # These are constraints on the model to make sure that one recommendation field is null if the other type is used
-    def save(self, *args, **kwargs):
-        if (self.type == 'U' and not self.song and not self.follow_rec) or \
-        (self.type == 'M' and self.song and not self.follow_rec) or \
-        (self.type == 'F' and not self.song and self.follow_rec):
-            super(Post, self).save()
-        else:
-            raise Exception, "This is not a valid post"
+    def __unicode__(self):
+        return u"%s %s %d %s" % (self.user.name, self.song.title, self.likes, self.creation_time)
 
 
 class Favorites(models.Model):
@@ -79,6 +102,19 @@ class Favorites(models.Model):
     class Meta:
         unique_together=['user', 'song_id']
 
+
+class Like(models.Model):
+    user = models.ForeignKey(User)
+    liked_post = models.ForeignKey(Post)
+
+
 class Follows(models.Model):
-  user = models.ForeignKey(User, related_name = 'Follows_source')
-  following = models.ForeignKey(User, related_name = 'Follows_dest')
+    user = models.ForeignKey(User, related_name='follow_src')
+    following = models.ForeignKey(User, related_name='follow_dst')
+
+    def __unicode__(self):
+        return u"%s -> %s" % (self.user.username, self.following.username)
+
+    # Not sure if this is necessary because there are only two attributes in the table
+    class Meta:
+        unique_together = ['user', 'following']
