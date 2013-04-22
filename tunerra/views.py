@@ -122,11 +122,11 @@ def settings(request):
     currPrefs = currPrefs[0]
     currNotify = currPrefs.notify_system
     currReg = currPrefs.preferred_region.name
-    currGenre = currPrefs.preferred_genre
+    #currGenre = currPrefs.preferred_genre TODO fix genres for settings page
     currPop = currPrefs.preferred_popularity
     lastFM_username = currPrefs.last_fmName
     vals = {'notify_system': currNotify, 'region': currReg, 
-    'popularity': currPop, 'genre': currGenre, 'LastFMusername': lastFM_username}
+    'popularity': currPop, 'LastFMusername': lastFM_username}
 
     return settingsPage(request, 'settings.html', vals)
 

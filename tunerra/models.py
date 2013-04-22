@@ -9,19 +9,34 @@ class Region(models.Model):
         return self.name
 
 
+class Genre(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    popularity = models.DecimalField(max_digits=10, decimal_places=6, default = 0)
+
+    def __unicode__(self):
+        return self.name
+
+
 class UserPreferences(models.Model):
     user = models.OneToOneField(User)
     notify_system = models.CharField(max_length=100)
     preferred_region = models.ForeignKey(Region)
     preferred_popularity = models.CharField(max_length=100)
-    preferred_genre = models.CharField(max_length=100)
     last_fmName = models.CharField(max_length=300)
 
-class Genre(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    popularity = models.DecimalField(max_digits=10, decimal_places=6, default = 0)
-    def __unicode__(self):
-        return self.name
+
+class UserPreferredGenre(models.Model):
+    user = models.ForeignKey(User)
+    genre = models.ForeignKey(Genre)
+    weight = models.FloatField()
+
+    def save(self, *args, **kwargs):
+        if self.weight > 1.0:
+            self.weight = models.FloatField(1.0)
+        elif self.weight < 0.0:
+            self.weight = models.FloatField(0.0)
+        super(UserPreferredGenre, self).save(*args, **kwargs)
+
 
 class Album(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -47,14 +62,14 @@ class MetadataProvider(models.Model):
 
 
 class Song(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=200)
     album = models.ForeignKey(Album)
     artist = models.ForeignKey(Artist)
     popularity = models.DecimalField(max_digits=10, decimal_places=6, default = 0)
     genre = models.ForeignKey(Genre)
     track_number = models.IntegerField(max_length=5, default = 0)
     bpm = models.IntegerField(max_length=4, default = 0)
-    length = models.CharField(max_length=8, default = 0)
+    length = models.TimeField()
     provider = models.ForeignKey(MetadataProvider)
     provider_track_id = models.CharField(max_length=100)
     class Meta:
@@ -67,7 +82,7 @@ class Song(models.Model):
 class Recommendation(models.Model):
     user = models.ForeignKey(User)
     creation_time = models.DateTimeField(auto_now_add=True)
-    user_liked = models.BooleanField()
+    user_liked = models.NullBooleanField()
 
     class Meta:
         abstract = True
