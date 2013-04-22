@@ -87,6 +87,7 @@ class Post(models.Model):
     user = models.ForeignKey(User)
     song = models.ForeignKey(Song)
     likes = models.IntegerField()
+    body = models.CharField(max_length=1500, default="")
     creation_time = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
