@@ -107,7 +107,7 @@ def settingsPage(request, pagename, vals):
             newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
             preferred_region = newReg, preferred_popularity = pop_val, preferred_genre = genre_val)
             newPrefs.save()
-        return HttpResponseRedirect('/accounts/profile/'+request.user.username)
+        return HttpResponseRedirect('/accounts/feed/'+request.user.username)
     else:
         return render(request, pagename, {'prefsForm': prefForm} )
 
@@ -168,7 +168,7 @@ def login_signup(request):
                 else:
                     login(request, user)
                     # Send to profile
-                    return HttpResponseRedirect('/accounts/profile/'+login_username)
+                    return HttpResponseRedirect('/accounts/feed/'+login_username)
             else:
                 # Returns current login_form so that the login form errors will show up to user
                 return render(request, 'accounts.html', {

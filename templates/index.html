@@ -3,7 +3,7 @@
 {% block navbar %}
     <ul class="nav pull-right">
       {% if user.is_authenticated %}
-        <li><a href="/accounts/profile/{{ user.username }}">Profile</a></li>
+        <li><a href="/accounts/feed/{{ user.username }}">Profile</a></li>
         <li><a href="{% url "logout" %}">Logout</a></li>
       {% else %}
         <li><a href="{% url "login_signup" %}">Signup/Login</a></li>
@@ -14,7 +14,7 @@
     <div class="row-fluid">
         <div class="span4"></div>
         <div id="search-box" class="span4" style="margin-left: auto; margin-right: auto;">
-            <form class="form-search well" id="search-form" action="/search" method="get">
+            <form class="form-search well" id="search-form" action="{% url "search" %}" method="get">
                 <div class="input-append">
                     <input type="text" id="recommendation-query" class="search-query">
                     <button type="submit" class="btn">Search</button>
