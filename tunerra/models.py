@@ -15,7 +15,7 @@ class UserPreferences(models.Model):
 
 class Genre(models.Model):
   name = models.CharField(max_length=100, unique=True)
-  popularity = models.DecimalField(max_digits=10, decimal_places=6)
+  popularity = models.DecimalField(max_digits=10, decimal_places=6, default = 0)
 
 class Album(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -32,11 +32,11 @@ class Song(models.Model):
     title = models.CharField(max_length=100)
     album = models.ForeignKey(Album)
     artist = models.ForeignKey(Artist)
-    popularity = models.DecimalField(max_digits=10, decimal_places=6)
+    popularity = models.DecimalField(max_digits=10, decimal_places=6, default = 0)
     genre = models.ForeignKey(Genre)
-    track_number = models.IntegerField(max_length=5)
-    bpm = models.IntegerField(max_length=4)
-    length = models.CharField(max_length=8)
+    track_number = models.IntegerField(max_length=5, default = 0)
+    bpm = models.IntegerField(max_length=4, default = 0)
+    length = models.CharField(max_length=8, default = 0)
     provider = models.ForeignKey(MetadataProvider)
     provider_track_id = models.CharField(max_length=100)
     class Meta:
