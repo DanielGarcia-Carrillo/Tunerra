@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-from django.conf import settings
+import os
 import requests
+
 def setup_django_env(path):
-    import imp, os
+    import imp
     from django.core.management import setup_environ
 
     f, filename, desc = imp.find_module('settings', [path])
@@ -31,12 +32,8 @@ def save_artist(artist_name):
     """
     If the artist doesn't exist, saves it to the database and returns it. Returns existing artist record otherwise
     """
-    artist_record = None
-    if not Artist.objects.filter(name=artist_name):
-        artist_record = Artist(name=artist_name)
-        artist_record.save()
-    else:
-        artist_record = Artist.objects.filter(name=artist_name)[0]
+    artist_record = Artist.objects.get_or_create(name=artist_name)
+    artist_record.save()
 
     return artist_record
 
@@ -46,17 +43,13 @@ def save_album(album_name, cover_url, release_year):
         album_record = Album(name=album_name, cover_art_url=cover_url, year=release_year)
         album_record.save()
     else:
-        album_record = Album.objects.filter(name=album_name)[0]
+        album_record = Album.objects.get(name=album_name)
 
     return album_record
 
 def save_genre(genre_name):
-    existing_genre = Genre.objects.get(name=genre_name)
-    if existing_genre:
-        genre_record = existing_genre
-    else:
-        genre_record = Genre(name=genre_name, popularity=1)
-        genre_record.save()
+    genre_record = Genre.objects.get_or_create(name=genre_name)
+    genre_record.save()
     return genre_record
 
 def scrape_api_page(page_num):
@@ -87,8 +80,11 @@ def scrape_api_page(page_num):
             length = track['length']
             genre = track['genres'][0]['name'].lower()
 
+            artist_max = Artist._meta.get_field('name').max_length
+            album_max = Album._meta.get_field('name').max_length
+            title_max = Song._meta.get_field('name').max_length
             # apparently the following condition is required, you can remove it if you like pain
-            if len(artist)>100 or len(album)>100 or len(title)>100 or len(length) > 6:
+            if len(artist) > artist_max or len(album) > album_max or len(title) > title_max:
                 continue
             artist_record = save_artist(artist)
             album_record = save_album(album,image_url,year)
@@ -97,12 +93,10 @@ def scrape_api_page(page_num):
 
             exact_song_matches = Song.objects.filter(title=title,artist=artist_record)
             if not exact_song_matches:
-                # Setting 0 popularity because TODO
                 song_record = Song(title=title,
                                    artist=artist_record,
                                    album=album_record,
                                    genre=genre_record,
-                                   popularity=0,
                                    bpm=bpm,
                                    length=length,
                                    track_number=track_number,
@@ -116,10 +110,9 @@ def scrape_api_page(page_num):
 
 if __name__ == '__main__':
     import traceback
-    # TODO absolute path
-    setup_django_env('/Users/Daniel/Tunerra/myproject')
+    setup_django_env("/Users/Daniel/Tunerra/myproject")
 
-    from tunerra.models import Song, Genre, MetadataProvider, Album, Artist
+    from .models import Song, Genre, MetadataProvider, Album, Artist
     # We are scraping Beatport. Add it to the list of providers if it's not present
     metadata_provider = MetadataProvider.objects.filter(name="Beatport")
     if metadata_provider:
