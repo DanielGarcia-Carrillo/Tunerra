@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 {% load staticfiles %}
+
+
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <title>{% block title %}Tunerra{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    {% block scripts %}
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "slider/js/bootstrap-slider.js" %}"></script>
+    {% endblock scripts %}
+
     {% block stylesheets %}
         <link rel="stylesheet" type="text/css" href="{% static "bootstrap/css/bootstrap.min.css" %}" media="screen">
         <link rel="stylesheet" type="text/css" href="{% static "bootstrap/css/bootstrap-responsive.min.css" %}"
@@ -23,8 +32,7 @@
     </div>
 {% endblock navigation %}
 {% block content %}
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+
 {% endblock content %}
 
 </body>
