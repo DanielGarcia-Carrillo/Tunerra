@@ -1,23 +1,24 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block navbar %}
-    <ul class="nav pull-right">
-      <li><a href="/accounts/logout">Logout</a></li>
-    </ul>
-{% endblock navbar %}
 {% block navigation %}
     {{block.super}}
 {% endblock navigation %}
 {% block content %}
 {% block message %}
-    <h2>Welcome, {{ user.username }}</h2>
-    <p>To begin, enter your preferences.<p>
+    <div class="row">
+      <div class="text-center">
+        <h2>Welcome, {{ user.username }}</h2>
+        <p>To begin, enter your preferences.</p>
+      </div>
+    </div>
 {% endblock message %}
+    {{block.super}}
     <div class = "row"><br>
-        <div class="span6"><br>
+      <div class="span2"></div>
+      <div class="span6"><br>
         <div class = "well">
-            <form class ="form-horizontal" method='post'> {% csrf_token %}
-                {{ last_fm_form.non_field_errors }}
+          <form class ="form-horizontal" method='post'> {% csrf_token %}
+              {{ last_fm_form.non_field_errors }}
             <label class = "control-label" for ="{{prefsform.notify_system}}">Receive Notifications:</label>
             <div class = "controls">
                 {{prefsForm.notify_system}}
@@ -29,8 +30,8 @@
             <label class = "control-label" for ="{{prefsform.popularity}}">Choose default popularity level:</label><br>
             <div class = "controls">
                 {{prefsForm.popularity}}
-            </div><br><br>
-            <label class = "control-label" for ="{{prefsform.genre}}">Enter one genre of music you listen to  <font size="1">(don't worry - you can choose more later!)</label><br>
+            </div><br /><br />
+            <label class = "control-label" for ="{{prefsform.genre}}">Enter one genre of music you listen to  <font size="1">(don't worry - you can choose more later!)</font></label><br>
             <div class = "controls">
                 {{prefsForm.genre}}
             </div><br><br>
@@ -41,8 +42,12 @@
             <div class="control-group field-wrapper">
                 <div class="controls">
                     <button type="submit" class ="btn btn-primary">Save changes</button>
-                    <button class ="btn">Cancel</button>
                 </div>
             </div>
+          </form>
         </div>
+      </div>
+    </div>
+    <script>
+    </script>
 {% endblock content %}

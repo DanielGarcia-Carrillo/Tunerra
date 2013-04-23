@@ -1,27 +1,63 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+
 {% block navbar %}
+    {{ block.super }}
     <ul class="nav pull-right">
-        <li><a href="/accounts/settings">Settings</a><li>
-        <li><a href="/accounts/logout">Logout</a></li>
+      {% if following %}
+        <!-- This shouldn't be a link, it should be javascript callback -->
+        <li><a id="unfollow" href="{{ request.path }}/unfollow">Unfollow</a></li>
+      {% else %}
+        <li><a id="follow" href="{{ request.path }}/follow">Follow</a></li>
+      {% endif %}
+      {% if user.is_authenticated %}
+          <li><a href="/accounts/feed/{{ user.username }}">Feed</a><li>
+          <li><a href="{% url "logout" %}">Logout</a></li>
+      {% else %}
+          <li><a href="{% url "login_signup" %}">Signup/Login</a></li>
+      {% endif %}
     </ul>
-{% endblock navbar %}
+{% endblock %}
 
-{%block content %}
-
-    <div class = "row-fluid">
-        <div class ="span2"></div>
-        <div class ="span6">
-        <div class = "hero-unit"><h2>Welcome back, {{user.username}}
-        </div>
-            <div class="well">
-                <h3>Favorite songs:</h3>
-                {% for Song in FavList %}
-                    <li>{{Song.title}} - {{Song.artist}}</li>
-                {% endfor %}
-            </div>
-            </div>
-        </div>
+{% block content %}
+    {{ block.super }}
+    <div class="row-fluid">
+      <div class="span2"></div>
+      <div class="span6">
+          {% for post in profile_posts %}
+          <div class="well" class="profile-post">
+              <ul class="media-heading">
+                    <li class="media">
+                        <a class="pull-left" href="#">
+                            <img class="media-object" data-src=SOMETHIGNLDJSKFLK">
+                        </a>
+                        <div class="media-body">
+                            <h4 class="media-heading">{{ post.title }} - {{ post.artist }} - {{ post.album }}</h4>
+                            <p class="post-body">{{ post.body }}</p>
+                            <p class="post-info"><a href="#">{{ post.likes }}</a> {{ post.time }} {{ post.username }}</p>
+                        </div>
+                    </li>
+              </ul>
+          </div>
+          {% endfor %}
+      </div>
     </div>
-
+    <script>
+      $("#follow").click(function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: "{{ request.path }}/follow"
+        }).done(function() {
+                    $(this).html("Follow");
+        });
+      });
+      $("#unfollow").click(function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: "{{ request.path }}/unfollow"
+        }).done(function() {
+          $(this).html("Unfollow");
+        });
+      });
+    </script>
 {% endblock content %}

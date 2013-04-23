@@ -2,90 +2,132 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-"""CREATE TABLE tunerra_region
-(
-  name character varying(100) NOT NULL,
-  CONSTRAINT tunerra_region_pkey PRIMARY KEY (name)
-)"""
 class Region(models.Model):
     name = models.CharField(max_length=100, primary_key=True, unique=True)
 
-"""CREATE TABLE tunerra_userpreferences
-(
-  id serial NOT NULL,
-  user_id integer NOT NULL,
-  notify_system character varying(100) NOT NULL,
-  preferred_region_id character varying(100) NOT NULL,
-  preferred_popularity character varying(100) NOT NULL,
-  preferred_genre character varying(100) NOT NULL,
-  CONSTRAINT tunerra_userpreferences_pkey PRIMARY KEY (id),
-  CONSTRAINT tunerra_userpreferences_preferred_region_id_fkey FOREIGN KEY (preferred_region_id)
-      REFERENCES tunerra_region (name) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
-  CONSTRAINT tunerra_userpreferences_user_id_fkey FOREIGN KEY (user_id)
-      REFERENCES auth_user (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
-  CONSTRAINT tunerra_userpreferences_user_id_key UNIQUE (user_id)
-)"""
+    def __unicode__(self):
+        return self.name
+
+
+class Genre(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    popularity = models.DecimalField(max_digits=10, decimal_places=6, default = 0)
+
+    def __unicode__(self):
+        return self.name
+
 
 class UserPreferences(models.Model):
     user = models.OneToOneField(User)
     notify_system = models.CharField(max_length=100)
     preferred_region = models.ForeignKey(Region)
     preferred_popularity = models.CharField(max_length=100)
-    preferred_genre = models.CharField(max_length=100)
+    last_fmName = models.CharField(max_length=300)
 
 
-"""
-CREATE TABLE tunerra_song
-(
-  id serial NOT NULL,
-  artist character varying(100) NOT NULL,
-  title character varying(100) NOT NULL,
-  album character varying(100) NOT NULL,
-  year date NOT NULL,
-  CONSTRAINT tunerra_song_pkey PRIMARY KEY (id)
-)
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE tunerra_song
-  OWNER TO main;
-  """
+class UserPreferredGenre(models.Model):
+    user = models.ForeignKey(User)
+    genre = models.ForeignKey(Genre)
+    weight = models.FloatField()
+
+    def save(self, *args, **kwargs):
+        if self.weight > 1.0:
+            self.weight = models.FloatField(1.0)
+        elif self.weight < 0.0:
+            self.weight = models.FloatField(0.0)
+        super(UserPreferredGenre, self).save(*args, **kwargs)
+
+
+class Album(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    cover_art_url = models.URLField()
+    year = models.DateField(auto_now=False)
+
+    def __unicode__(self):
+        return u"%s %s" % (self.name, self.year)
+
+
+class Artist(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __unicode__(self):
+        return self.name
+
+
+class MetadataProvider(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __unicode__(self):
+        return self.name
+
 
 class Song(models.Model):
-    artist = models.CharField(max_length=100)
-    title = models.CharField(max_length=100)
-    album = models.CharField(max_length=100, null=True)
-    year = models.DateField(auto_now = False)
+    title = models.CharField(max_length=200)
+    album = models.ForeignKey(Album)
+    artist = models.ForeignKey(Artist)
+    popularity = models.DecimalField(max_digits=10, decimal_places=6, default = 0)
+    genre = models.ForeignKey(Genre)
+    track_number = models.IntegerField(max_length=5, default = 0)
+    bpm = models.IntegerField(max_length=4, default = 0)
+    length = models.TimeField()
+    provider = models.ForeignKey(MetadataProvider)
+    provider_track_id = models.CharField(max_length=100)
     class Meta:
         unique_together=['artist', 'title']
 
+    def __unicode__(self):
+        return u'%s - %s - %s' % (self.title, self.album.name, self.artist.name)
 
-"""CREATE TABLE tunerra_favorites
-(
-  id serial NOT NULL,
-  user_id integer NOT NULL,
-  hotness_level integer NOT NULL,
-  song_id_id integer NOT NULL,
-  play_count integer NOT NULL,
-  last_played timestamp with time zone NOT NULL,
-  CONSTRAINT tunerra_favorites_pkey PRIMARY KEY (id),
-  CONSTRAINT tunerra_favorites_song_id_id_fkey FOREIGN KEY (song_id_id)
-      REFERENCES tunerra_song (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
-  CONSTRAINT tunerra_favorites_user_id_fkey FOREIGN KEY (user_id)
-      REFERENCES auth_user (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED
-)
-"""
+
+class Recommendation(models.Model):
+    user = models.ForeignKey(User)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    user_liked = models.NullBooleanField()
+
+    class Meta:
+        abstract = True
+
+
+class MusicRecommendation(Recommendation):
+    song = models.ForeignKey(Song)
+
+
+class FollowRecommendation(Recommendation):
+    follow_user = models.ForeignKey(User, related_name="follow_user")
+
+
+class Post(models.Model):
+    user = models.ForeignKey(User)
+    song = models.ForeignKey(Song)
+    likes = models.IntegerField()
+    creation_time = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return u"%s %s %d %s" % (self.user.name, self.song.title, self.likes, self.creation_time)
+
+
 class Favorites(models.Model):
     user = models.ForeignKey(User)
-    hotness_level = models.IntegerField()
+    hotness_level = models.IntegerField(default = 0)
     song_id = models.ForeignKey(Song)
-    play_count = models.IntegerField()
+    play_count = models.IntegerField(default = 0)
     last_played = models.DateTimeField(null=True)
     class Meta:
         unique_together=['user', 'song_id']
 
 
+class Like(models.Model):
+    user = models.ForeignKey(User)
+    liked_post = models.ForeignKey(Post)
+
+
+class Follows(models.Model):
+    user = models.ForeignKey(User, related_name='follow_src')
+    following = models.ForeignKey(User, related_name='follow_dst')
+
+    def __unicode__(self):
+        return u"%s -> %s" % (self.user.username, self.following.username)
+
+    # Not sure if this is necessary because there are only two attributes in the table
+    class Meta:
+        unique_together = ['user', 'following']

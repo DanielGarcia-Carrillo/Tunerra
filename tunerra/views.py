@@ -1,7 +1,6 @@
 from django.template import RequestContext
 from django.shortcuts import render
 from django import forms
-from django.db import models
 from tunerra.models import Song, Favorites, UserPreferences, Region
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
@@ -42,10 +41,20 @@ def parse_LastFM_love(xmltree, request):
 
 def index(request):
     if request.user.is_authenticated():
-        return HttpResponseRedirect('/accounts/profile/'+request.user.username)
+        return render(request, 'map.html', RequestContext(request))
+        #return HttpResponseRedirect('/accounts/profile/'+request.user.username)
     else:
         # Treat them as anonymous user
         return render(request, 'index.html', RequestContext(request))
+    
+def map_page(request):
+    currPrefs = UserPreferences.objects.filter(user = request.user)
+    if not currPrefs:
+        return render(request, 'map.html', None)
+    else:
+        currPrefs = currPrefs[0]
+        currRegion = currPrefs.preferred_region.name
+        return render(request, 'map.html', {'username': request.user.username, 'currRegion': currRegion})
 
 def login_error(request):
     return render(request, 'login_error.html', RequestContext(request))
@@ -53,22 +62,21 @@ def login_error(request):
 def settingsPage(request, pagename, vals):
     if not request.user.is_authenticated():
         return HttpResponseRedirect('/login_error')
-    if(request.method == 'GET'):
-        if vals is None:
+    if request.method == 'GET':
+        if vals:
+            prefForm = prefsForm(initial=vals)
+        else:
             prefForm = prefsForm(request.GET)
-            return render(request, pagename, {'prefsForm': prefForm} )
-        prefForm = prefsForm(initial=vals)
         return render(request, pagename, {'prefsForm': prefForm} )
     
     #Request is a POST
-    if 'delete_btn' in request.POST:
+    if 'confirmed-delete' in request.POST:
+        #TODO make sure admins can't be deleted
         #DELETE FROM Users WHERE id = request.user.id
         request.user.delete()   #CASCADEs
         return HttpResponseRedirect('/')
-    if vals is None:
-        prefForm = prefsForm(request.POST)
-    else:
-        prefForm = prefsForm(request.POST)
+
+    prefForm = prefsForm(request.POST)
     if prefForm.is_valid():
         lastFMusername = prefForm.cleaned_data['LastFMusername']
         fm_str_req = fm_loved_str + lastFMusername + "&api_key=" + last_fm_key
@@ -99,10 +107,7 @@ def settingsPage(request, pagename, vals):
             newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
             preferred_region = newReg, preferred_popularity = pop_val, preferred_genre = genre_val)
             newPrefs.save()
-
-
-
-        return HttpResponseRedirect('/accounts/profile/'+request.user.username)
+        return HttpResponseRedirect('/accounts/feed/'+request.user.username)
     else:
         return render(request, pagename, {'prefsForm': prefForm} )
 
@@ -111,13 +116,17 @@ def welcome(request):
 
 def settings(request):
     # SELECT FROM UserPreferences WHERE user = ?
-    currPrefs = UserPreferences.objects.filter(user = request.user)[0]
+    currPrefs = UserPreferences.objects.filter(user = request.user)
+    if not currPrefs:
+        return settingsPage(request, 'settings.html', None)
+    currPrefs = currPrefs[0]
     currNotify = currPrefs.notify_system
     currReg = currPrefs.preferred_region.name
-    currGenre = currPrefs.preferred_genre
+    #currGenre = currPrefs.preferred_genre TODO fix genres for settings page
     currPop = currPrefs.preferred_popularity
+    lastFM_username = currPrefs.last_fmName
     vals = {'notify_system': currNotify, 'region': currReg, 
-    'popularity': currPop, 'genre': currGenre, 'LastFMusername': ''}
+    'popularity': currPop, 'LastFMusername': lastFM_username}
 
     return settingsPage(request, 'settings.html', vals)
 
@@ -159,7 +168,7 @@ def login_signup(request):
                 else:
                     login(request, user)
                     # Send to profile
-                    return HttpResponseRedirect('/accounts/profile/'+login_username)
+                    return HttpResponseRedirect('/accounts/feed/'+login_username)
             else:
                 # Returns current login_form so that the login form errors will show up to user
                 return render(request, 'accounts.html', {
@@ -172,41 +181,20 @@ def login_signup(request):
             'login_form': LoginForm()
         })
 
-#Code to log into last FM
-
 class prefsForm(forms.Form):
+    correct_size_text_input = widget=forms.TextInput(attrs={'class':'input-block-level'})
     notify_system = forms.BooleanField(required=False)
-    region = forms.CharField(max_length=100, initial = 'Chicago')
-    popularity = forms.ChoiceField(choices=POPULARITY_CHOICE)
-    genre = forms.CharField(max_length=100)
-    LastFMusername = forms.CharField(max_length=50, required=False)
-
-
-
-def search(request):
-    # TODO currently just sends to search page, should also populate with results
-    return render(request, 'results.html', RequestContext(request))
-
-def user_profile(request, username):
-    if (request.user.is_authenticated() and request.user.username == username):
-        # SELECT FROM Favorites WHERE user = ?
-        favList = Favorites.objects.filter(user = request.user)
-        favSongList = list()
-        for fav in favList:
-            currSong = fav.song_id
-            # print currSong.title
-            favSongList.append(currSong)
-        return render(request, 'profile.html', {'FavList': favSongList})
-    else:
-        logout(request)
-        raise Http404
+    region = forms.CharField(max_length=100, initial = 'Chicago', widget=correct_size_text_input)
+    popularity = forms.ChoiceField(choices=POPULARITY_CHOICE, widget=forms.Select(attrs={'class':'input-block-level'}))
+    genre = forms.CharField(max_length=100, widget=correct_size_text_input)
+    LastFMusername = forms.CharField(max_length=50, required=False, widget=correct_size_text_input)
 
 class SignupForm(forms.Form):
-    # Putting these attrs here suck
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+    # Putting these attrs here sucks, but I don't know how else to add all the attrs I want
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username', 'class':'input-block-level'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'required':True,'placeholder':'Email', 'class':'input-block-level'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password', 'class':'input-block-level'}))
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username'}))
-    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password'}))
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'required':True,'placeholder':'Username', 'class':'input-block-level'}))
+    password = forms.CharField(min_length=8, widget=forms.PasswordInput(attrs={'required':True,'placeholder':'Password', 'class':'input-block-level'}))
