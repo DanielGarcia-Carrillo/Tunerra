@@ -117,7 +117,7 @@ def scrape_api_page(page_num):
 
 if __name__ == '__main__':
     import traceback
-    setup_django_env(os.path.dirname(os.path.abspath("."))+"/myproject")
+    setup_django_env(os.path.abspath("."))
 
     from tunerra.models import Song, Genre, MetadataProvider, Album, Artist
     # We are scraping Beatport. Add it to the list of providers if it's not present
