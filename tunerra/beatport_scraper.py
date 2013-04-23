@@ -82,7 +82,7 @@ def scrape_api_page(page_num):
 
             artist_max = Artist._meta.get_field('name').max_length
             album_max = Album._meta.get_field('name').max_length
-            title_max = Song._meta.get_field('name').max_length
+            title_max = Song._meta.get_field('title').max_length
             # apparently the following condition is required, you can remove it if you like pain
             if len(artist) > artist_max or len(album) > album_max or len(title) > title_max:
                 continue
