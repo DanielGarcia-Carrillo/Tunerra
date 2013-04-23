@@ -67,6 +67,8 @@ def settingsPage(request, pagename, vals):
         else:
             prefForm = prefsForm(request.GET)
         favGenres = UserPreferredGenre.objects.filter(user = request.user)
+        for favObj in favGenres:
+            favObj.weight = favObj.weight * 11.0
         return render(request, pagename, {'prefsForm': prefForm, 'favGenres': favGenres} )
     
     #Request is a POST
@@ -98,17 +100,30 @@ def settingsPage(request, pagename, vals):
             user_pref.notify_system = notify_val
             user_pref.preferred_region = newReg
             user_pref.preferred_popularity = pop_val
-            genreVals = genre_val.split(',')
+            genreVals = genre_val.replace(' ', '_').split(',')
+            myGenres = UserPreferredGenre.objects.filter(user = request.user)
+
+            for favgen in myGenres:
+                currGenreName = favgen.genre.name
+                favgen.weight = float(request.POST[currGenreName])/11.0
+                favgen.save(force_update= True)
+
             for genreWord in genreVals:
                 currGenre, created = Genre.objects.get_or_create(name= genreWord)
-                UserPreferredGenre.objects.get_or_create(user = request.user, genre = currGenre, weight=1.0)
+                if not UserPreferredGenre.objects.filter(user=request.user, genre = currGenre).exists():
+                    UserPreferredGenre.objects.get_or_create(user = request.user, genre = currGenre, weight=1.0)
             # UPDATE UserPreferences SET notify_system=?, preferred_region=?, preferred_popularity=?, preferred_genre=?, WHERE user=?
             user_pref.save()
         else:
             # Create new userprefs
             # INSERT INTO UserPreferences (user, notify_system, preferred_region, preferred_popularity, preferred_genre) VALUES ?,?,?,?,?
             newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
-            preferred_region = newReg, preferred_popularity = pop_val, last_fmName = LastFMusername)
+            preferred_region = newReg, preferred_popularity = pop_val, last_fmName = lastFMusername)
+            genreVals = genre_val.replace(' ', '_').split(',')
+            for genreWord in genreVals:
+                currGenre, created = Genre.objects.get_or_create(name= genreWord)
+                UserPreferredGenre.objects.get_or_create(user = request.user, genre = currGenre, weight=1.0)
+
             newPrefs.save()
         return HttpResponseRedirect('/accounts/feed/'+request.user.username)
     else:
