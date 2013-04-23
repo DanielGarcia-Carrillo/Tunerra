@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-from django.conf import settings
+import os
 import requests
+
 def setup_django_env(path):
-    import imp, os
+    import imp
     from django.core.management import setup_environ
 
     f, filename, desc = imp.find_module('settings', [path])
@@ -117,6 +118,7 @@ def scrape_api_page(page_num):
 if __name__ == '__main__':
     import traceback
     # TODO absolute path
+    setup_django_env(os.path.dirname(os.path.abspath("."))+"/myproject")
     setup_django_env('/Users/Daniel/Tunerra/myproject')
 
     from tunerra.models import Song, Genre, MetadataProvider, Album, Artist
