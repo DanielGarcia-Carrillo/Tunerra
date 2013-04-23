@@ -3,7 +3,7 @@
 {% block navbar %}
     <ul class="nav pull-right">
         {% if user.is_authenticated %}
-            <li><a href="/accounts/feed/{{ user.username }}">Profile</a><li>
+            <li><a href="/accounts/feed/{{ user.username }}">Feed</a><li>
             <li><a href="{% url "logout" %}">Logout</a></li>
         {% else %}
             <li><a href="{% url "login_signup" %}">Signup/Login</a></li>
@@ -12,6 +12,7 @@
 {% endblock navbar %}
 
 {% block content %}
+    {{ block.super }}
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
       html { height: 100% }
@@ -28,6 +29,7 @@
         var startURL = 'http://maps.google.com/maps/api/geocode/json?address=';
         var endURL = '&sensor=false';
         var URL = startURL + '{{currRegion}}' + endURL;
+        console.log(URL)
         
         $.get(URL, success);
       }
