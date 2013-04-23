@@ -28,7 +28,7 @@ class UserPreferences(models.Model):
 class UserPreferredGenre(models.Model):
     user = models.ForeignKey(User)
     genre = models.ForeignKey(Genre)
-    weight = models.FloatField()
+    weight = models.FloatField(default = 1.0)
 
     def save(self, *args, **kwargs):
         if self.weight > 1.0:

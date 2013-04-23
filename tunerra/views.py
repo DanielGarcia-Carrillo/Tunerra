@@ -1,7 +1,7 @@
 from django.template import RequestContext
 from django.shortcuts import render
 from django import forms
-from tunerra.models import Song, Favorites, UserPreferences, Region
+from tunerra.models import Song, Favorites, UserPreferences, Region, UserPreferredGenre, Genre
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -17,14 +17,13 @@ POPULARITY_CHOICE = {('1', 'Low Popularity'),
 
 #Add songs
 def parse_LastFM_love(xmltree, request):
-    #print "WHOLE FILE: " + xmltree.toxml()
     for lfm in xmltree.getElementsByTagName('lfm'):
         for lovedSongs in xmltree.getElementsByTagName('lovedtracks'):
             for song in lfm.getElementsByTagName('track'):
                 title = song.getElementsByTagName('name')[0].firstChild.nodeValue
                 artist = song.getElementsByTagName('artist')[0].getElementsByTagName('name')[0].firstChild.nodeValue
                 newSong = Song(title = title, artist = artist, album='noalb', year ='1999-01-22')
-                # INSERT INTO Song (title, artist, album, year) VALUES ?,?,'noalb', '1999-01-22;  title artist
+
                 newSong.save()
                 newFav = Favorites()
                 user = request.user
@@ -32,7 +31,7 @@ def parse_LastFM_love(xmltree, request):
                 song_id = newSong
                 play_count = 1
                 last_played = song.getElementsByTagName('date')[0].firstChild.nodeValue
-                # INSERT INTO Favorites (user, hotness_level, song_id, play_count, last_played) VALUES ?,?,?,?,'1999-01-22'
+
                 newFav = Favorites(user = user, hotness_level = hotness_level, song_id = song_id, play_count = play_count, last_played='1999-01-22')
                 newFav.save()
 
@@ -67,7 +66,10 @@ def settingsPage(request, pagename, vals):
             prefForm = prefsForm(initial=vals)
         else:
             prefForm = prefsForm(request.GET)
-        return render(request, pagename, {'prefsForm': prefForm} )
+        favGenres = UserPreferredGenre.objects.filter(user = request.user)
+        for favObj in favGenres:
+            favObj.weight = favObj.weight * 11.0
+        return render(request, pagename, {'prefsForm': prefForm, 'favGenres': favGenres} )
     
     #Request is a POST
     if 'confirmed-delete' in request.POST:
@@ -98,18 +100,35 @@ def settingsPage(request, pagename, vals):
             user_pref.notify_system = notify_val
             user_pref.preferred_region = newReg
             user_pref.preferred_popularity = pop_val
-            user_pref.preferred_genre = genre_val
+            genreVals = genre_val.replace(' ', '_').split(',')
+            myGenres = UserPreferredGenre.objects.filter(user = request.user)
+
+            for favgen in myGenres:
+                currGenreName = favgen.genre.name
+                favgen.weight = float(request.POST[currGenreName])/11.0
+                favgen.save(force_update= True)
+
+            for genreWord in genreVals:
+                currGenre, created = Genre.objects.get_or_create(name= genreWord)
+                if not UserPreferredGenre.objects.filter(user=request.user, genre = currGenre).exists():
+                    UserPreferredGenre.objects.get_or_create(user = request.user, genre = currGenre, weight=1.0)
             # UPDATE UserPreferences SET notify_system=?, preferred_region=?, preferred_popularity=?, preferred_genre=?, WHERE user=?
             user_pref.save()
         else:
             # Create new userprefs
             # INSERT INTO UserPreferences (user, notify_system, preferred_region, preferred_popularity, preferred_genre) VALUES ?,?,?,?,?
             newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
-            preferred_region = newReg, preferred_popularity = pop_val, preferred_genre = genre_val)
+            preferred_region = newReg, preferred_popularity = pop_val, last_fmName = lastFMusername)
+            genreVals = genre_val.replace(' ', '_').split(',')
+            for genreWord in genreVals:
+                currGenre, created = Genre.objects.get_or_create(name= genreWord)
+                UserPreferredGenre.objects.get_or_create(user = request.user, genre = currGenre, weight=1.0)
+
             newPrefs.save()
         return HttpResponseRedirect('/accounts/feed/'+request.user.username)
     else:
-        return render(request, pagename, {'prefsForm': prefForm} )
+        favGenres = UserPreferredGenre.objects.filter(user = request.user)
+        return render(request, pagename, {'prefsForm': prefForm, 'favGenres': favGenres} )
 
 def welcome(request):
     return settingsPage(request, 'welcome.html', None)
@@ -125,8 +144,14 @@ def settings(request):
     #currGenre = currPrefs.preferred_genre TODO fix genres for settings page
     currPop = currPrefs.preferred_popularity
     lastFM_username = currPrefs.last_fmName
+    favGenreString= ""
+    favGenres = UserPreferredGenre.objects.filter(user = request.user)
+    for genreRow in favGenres:
+        favGenreString = favGenreString + genreRow.genre.name +","
+    favGenreString = favGenreString[:-1]
+
     vals = {'notify_system': currNotify, 'region': currReg, 
-    'popularity': currPop, 'LastFMusername': lastFM_username}
+    'popularity': currPop, 'LastFMusername': lastFM_username, 'genre': favGenreString }
 
     return settingsPage(request, 'settings.html', vals)
 
