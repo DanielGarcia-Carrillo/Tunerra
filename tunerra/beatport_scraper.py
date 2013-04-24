@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import requests
-import time
+import resource
 
 def setup_django_env(path):
     import imp
@@ -111,9 +111,9 @@ def scrape_api_page(page_num):
 
 if __name__ == '__main__':
     import traceback
-    setup_django_env("/Users/Daniel/Tunerra/myproject")
+    setup_django_env("/home/danielgc/webapps/tunerra/myproject/myproject")
 
-    from tunerra.models import Song, Genre, MetadataProvider, Album, Artist
+    from .models import Song, Genre, MetadataProvider, Album, Artist
     # We are scraping Beatport. Add it to the list of providers if it's not present
     metadata_provider = MetadataProvider.objects.filter(name="Beatport")
     if metadata_provider:
@@ -126,6 +126,9 @@ if __name__ == '__main__':
 
     for x in range(initial_page, 17894):  # 17894 is the last beatport page
         try:
+            mem_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            if mem_usage > 150000000:
+                raise Exception("too much memory usage")
             scrape_api_page(x)
         except Exception as exc:
             traceback.print_exc()
