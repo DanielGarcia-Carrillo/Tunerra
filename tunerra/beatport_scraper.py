@@ -78,8 +78,7 @@ def scrape_api_page(page_num):
             title = track['title']
             track_number = track['trackNumber']
             bpm = track['bpm']
-            length = time.strptime(track['length'], '%M:%S')
-            length = str(length.tm_hour) + ":" + str(length.tm_min) + ":" + str(length.tm_sec)
+            length = track['length']
             genre = track['genres'][0]['name'].lower()
 
             artist_max = Artist._meta.get_field('name').max_length
@@ -113,9 +112,6 @@ def scrape_api_page(page_num):
 if __name__ == '__main__':
     import traceback
     setup_django_env("/Users/Daniel/Tunerra/myproject")
-    import sys
-
-    sys.path.append("/usr")
 
     from tunerra.models import Song, Genre, MetadataProvider, Album, Artist
     # We are scraping Beatport. Add it to the list of providers if it's not present
@@ -132,7 +128,6 @@ if __name__ == '__main__':
         try:
             scrape_api_page(x)
         except Exception as exc:
-            print exc
             traceback.print_exc()
             write_out_progress(x)
             break
