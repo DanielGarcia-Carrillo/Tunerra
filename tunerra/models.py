@@ -69,7 +69,7 @@ class Song(models.Model):
     genre = models.ForeignKey(Genre)
     track_number = models.IntegerField(max_length=5, default = 0)
     bpm = models.IntegerField(max_length=4, default = 0)
-    length = models.CharField(default="00:00")
+    length = models.CharField(max_length=20, default="00:00")
     provider = models.ForeignKey(MetadataProvider)
     provider_track_id = models.CharField(max_length=100)
     class Meta:
