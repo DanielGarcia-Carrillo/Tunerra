@@ -10,7 +10,7 @@
       {% else %}
         <li><a id="follow" href="{{ request.path }}/follow">Follow</a></li>
       {% endif %}
-      {% if user.is_authenticated %}
+      {% if user.is_authenticated and not same_user %}
           <li><a href="/accounts/feed/{{ user.username }}">Feed</a><li>
           <li><a href="{% url "logout" %}">Logout</a></li>
       {% else %}
@@ -23,23 +23,34 @@
     {{ block.super }}
     <div class="row-fluid">
       <div class="span2"></div>
-      <div class="span6">
+      <div class="span6" id="posts">
           {% for post in profile_posts %}
-          <div class="well" class="profile-post">
+          <div class="well profile-post" class="profile-post">
               <ul class="media-heading">
                     <li class="media">
                         <a class="pull-left" href="#">
-                            <img class="media-object" data-src=SOMETHIGNLDJSKFLK">
+                            <img class="media-object" src="{{ post.song.album.cover_art_url }}">
                         </a>
                         <div class="media-body">
-                            <h4 class="media-heading">{{ post.title }} - {{ post.artist }} - {{ post.album }}</h4>
+                            <h4 class="media-heading">{{ post.song.title }} - {{ post.song.artist }} - {{ post.song.album.name }}</h4>
                             <p class="post-body">{{ post.body }}</p>
-                            <p class="post-info"><a href="#">{{ post.likes }}</a> {{ post.time }} {{ post.username }}</p>
+                            <p class="post-info">
+                            {% if user.is_authenticated %}
+                                <!--Ajax it up for link--><a href="#" class="btn btn-small">Like button</a>
+                            {% endif %} {{ post.likes }} {{ post.time }}</p>
                         </div>
                     </li>
               </ul>
           </div>
           {% endfor %}
+      </div>
+      <div class="span3" id="user-info">
+          <div class="well">
+              <h3>Favorite songs:</h3>
+            {% for Song in FavList %}
+                <li>{{Song.title}} - {{Song.artist}}</li>
+            {% endfor %}
+          </div>
       </div>
     </div>
     <script>
