@@ -1,5 +1,10 @@
 # Django settings for myproject project.
 
+#Celery
+import djcelery
+djcelery.setup_loader()
+
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -138,7 +143,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'tunerra',
-    'south',
+    #'south',
+    'djcelery',
 )
 
 # A sample logging configuration. The only tangible logging

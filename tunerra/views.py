@@ -14,6 +14,8 @@ POPULARITY_CHOICE = {('1', 'Low Popularity'),
  ('2', 'Normal Popularity'), ('3', 'High Popularity')}
 
 
+celeryrun = 0
+
 
 #Add songs
 def parse_LastFM_love(xmltree, request):

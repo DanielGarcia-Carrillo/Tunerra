@@ -24,6 +24,9 @@ class UserPreferences(models.Model):
     preferred_popularity = models.CharField(max_length=100)
     last_fmName = models.CharField(max_length=300)
 
+    def __unicode__(self):
+        return str(self.user)
+
 
 class UserPreferredGenre(models.Model):
     user = models.ForeignKey(User)
