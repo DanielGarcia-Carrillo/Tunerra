@@ -15,8 +15,8 @@ def Scanner():
     credentials['password'] = '12345678'
     songList.append(credentials)
     
-    libPath = 'C:\users\david\music\itunes'
-    xmlStr = libPath + '\iTunes Music Library.xml'
+    libPath = '/home/danielgc/webapps/tunerra/myproject'
+    xmlStr = libPath + '/iTunes Music Library.xml'
     
     filefound = 1
     while not filefound:
