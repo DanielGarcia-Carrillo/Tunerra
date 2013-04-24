@@ -61,5 +61,7 @@ class FeedPage(View):
 
 
 class PostForm(forms.Form):
-    artist = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'artist'}))
-    title = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'title'}))
+    title = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'title', 'required': True, 'class':'input-block-level'}))
+    artist = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'artist', 'required': True, 'class':'input-block-level'}))
+    album = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'album'}), required=False)
+    body = forms.CharField(max_length=1500, widget=forms.Textarea(attrs={'rows': '2'}), required=False)

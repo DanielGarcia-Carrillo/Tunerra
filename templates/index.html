@@ -3,7 +3,7 @@
 {% block navbar %}
     <ul class="nav pull-right">
       {% if user.is_authenticated %}
-        <li><a href="/accounts/feed/{{ user.username }}">Profile</a></li>
+        <li><a href="/accounts/feed/{{ user.username }}">Feed</a></li>
         <li><a href="{% url "logout" %}">Logout</a></li>
       {% else %}
         <li><a href="{% url "login_signup" %}">Signup/Login</a></li>
