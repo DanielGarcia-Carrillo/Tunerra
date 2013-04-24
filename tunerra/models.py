@@ -71,7 +71,7 @@ class Song(models.Model):
     genre = models.ForeignKey(Genre)
     track_number = models.IntegerField(max_length=5, default = 0)
     bpm = models.IntegerField(max_length=4, default = 0)
-    length = models.TimeField()
+    length = models.CharField(max_length=20, default="00:00")
     provider = models.ForeignKey(MetadataProvider)
     provider_track_id = models.CharField(max_length=100)
     class Meta:
@@ -102,10 +102,11 @@ class Post(models.Model):
     user = models.ForeignKey(User)
     song = models.ForeignKey(Song)
     likes = models.IntegerField()
+    body = models.CharField(default="", max_length=1500)
     creation_time = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return u"%s %s %d %s" % (self.user.name, self.song.title, self.likes, self.creation_time)
+        return u"%s %s %d %s" % (self.user.username, self.song.title, self.likes, self.creation_time)
 
 
 class Favorites(models.Model):
@@ -121,6 +122,9 @@ class Favorites(models.Model):
 class Like(models.Model):
     user = models.ForeignKey(User)
     liked_post = models.ForeignKey(Post)
+
+    def __unicode__(self):
+        return u"%s likes post %d" % (self.user.username, self.liked_post.pk)
 
 
 class Follows(models.Model):

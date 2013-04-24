@@ -25,9 +25,11 @@ def parse_LastFM_love(xmltree, request):
     for lfm in xmltree.getElementsByTagName('lfm'):
         for lovedSongs in xmltree.getElementsByTagName('lovedtracks'):
             for song in lfm.getElementsByTagName('track'):
-                title = song.getElementsByTagName('name')[0].firstChild.nodeValue
-                artist = song.getElementsByTagName('artist')[0].getElementsByTagName('name')[0].firstChild.nodeValue
-                newSong = Song(title = title, artist = artist, album='noalb', year ='1999-01-22')
+                try:
+                    title = song.getElementsByTagName('name')[0].firstChild.nodeValue
+                    artist = song.getElementsByTagName('artist')[0].getElementsByTagName('name')[0].firstChild.nodeValue
+                    newSong = Song(title = title, artist = artist, album='noalb', year ='1999-01-22')
+                except: continue
 
                 newSong.save()
                 newFav = Favorites()

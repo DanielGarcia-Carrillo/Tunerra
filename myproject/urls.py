@@ -3,8 +3,9 @@ from tunerra import search_views, social_views, views, feed_views, profile_views
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
-from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from dajaxice.core import dajaxice_autodiscover, dajaxice_config
+dajaxice_autodiscover()
 
 from dajaxice.core import dajaxice_autodiscover, dajaxice_config
 dajaxice_autodiscover()
@@ -20,13 +21,13 @@ urlpatterns = patterns('',
     url(r'^accounts/feed/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})$', feed_views.FeedPage.as_view()),
     url(r'^login_error$', 'tunerra.views.login_error'),
     url(r'^accounts/settings$', 'tunerra.views.settings', name='settings'),
-    url(r'^accounts/facebook_connect', social_views.facebook_connect.as_view()),
-    url(r'^map', 'tunerra.views.map_page', name='map'),
+    url(r'^accounts/facebook_connect$', social_views.facebook_connect.as_view()),
+    url(r'^map$', 'tunerra.views.map_page', name='map'),
 
-    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})', profile_views.ProfilePage.as_view()),
-    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})/follow', profile_views.ProfileFollow.as_view()),
-    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})/unfollow', profile_views.ProfileUnfollow.as_view()),
-
+    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})$', profile_views.ProfilePage.as_view()),
+    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})/follow$', profile_views.ProfileFollow.as_view()),
+    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})/unfollow$', profile_views.ProfileUnfollow.as_view()),
+    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})/like', profile_views.ProfilePostLike.as_view()),
     
     url(r'^channel.html$', 'tunerra.social_views.facebook_api'),
     # Insert RESTful url here for accounts (accounts/[id] or profile/[id]) perhaps?
@@ -36,8 +37,10 @@ urlpatterns = patterns('',
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-    
-    url(r'^dajaxice/', include('dajaxice.urls'))
+
+    # Dajaxice stuff
+    url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
 )
 
 urlpatterns += staticfiles_urlpatterns()
+
