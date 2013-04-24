@@ -15,8 +15,13 @@ input.facebook-connect {
     min-width:100%;
 }
 
-#feed-posts .post-info {
+#everything {
+    padding-top: 10px;
+}
 
+#posts img {
+    width: 125px;
+    height: 125px;
 }
 
 #map_canvas{

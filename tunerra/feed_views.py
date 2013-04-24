@@ -37,31 +37,18 @@ class FeedPage(View):
             raise Http404
 
     def page_context(self, request):
-        # SELECT FROM Favorites WHERE user = ?
-        favList = models.Favorites.objects.filter(user=request.user)
-        favSongList = list()
-        for fav in favList:
-            currSong = fav.song_id
-            # print currSong.title
-            favSongList.append(currSong)
-
+        # TODO get all posts that are music recommendations, follow recommendations and
         # Order posts by descending creation_time order and get 10 latest TODO respond to pagination, ie get later pages on request
-        posts = models.Post.objects.filter(user=request.user).order_by('-creation_time')[:10]
-        profile_posts = list()
-        for p in posts:
-            post_dict = {'body': p.body,
-                         'likes': p.likes,
-                         'time': p.creation_time,
-                         'type': p.type,
-                         'recommendation': p.follow_rec if p.follow_rec else p.song
-            }
-            profile_posts.append(post_dict)
+        music_recs = models.MusicRecommendation.objects.filter(user=request.user).order_by('-creation_time')[:10]
+        follow_recs = models.FollowRecommendation.objects.filter(user=request.user).order_by('-creation_time')[:10]
+        follows = models.Follows.objects.filter(user=request.user)
+        # essentially an inner join: user__in
+        feed_posts = models.Post.objects.filter(user__in=[f.following for f in follows]).order_by('-creation_time')[:10]
 
-        return {'FavList': favSongList, 'profile_posts': profile_posts}
+        return {'feed_posts': feed_posts, 'music_recs': music_recs, 'follow_recs': follow_recs}
 
 
 class PostForm(forms.Form):
     title = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'title', 'required': True, 'class':'input-block-level'}))
     artist = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'artist', 'required': True, 'class':'input-block-level'}))
-    album = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'placeholder': 'album'}), required=False)
     body = forms.CharField(max_length=1500, widget=forms.Textarea(attrs={'rows': '2'}), required=False)
