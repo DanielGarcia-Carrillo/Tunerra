@@ -24,7 +24,7 @@ def getLastFmSong(title, artist):
     return addToDatabase(trackInfo, 0)
 
 
-    
+
 
 
 
@@ -47,8 +47,6 @@ def addToDatabase(trackInfo, songsAdded):
             songDict['track_number'] = trackInfo['album']['@attr']['position']
         except:
             songDict['track_number'] = 0
-        songDict['bpm'] = 0
-        songDict['length'] = 0
         songDict['provider'] = 'Last_FM'
         songDict['provider_track_id'] = trackInfo['id']
         newLink = lastFmLink_Album.replace('!', songDict['artist'].replace(' ', '+')).replace('$', songDict['album'].replace(' ', '+'))
