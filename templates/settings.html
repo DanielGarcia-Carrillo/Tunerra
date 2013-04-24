@@ -50,7 +50,7 @@
   {% endblock content %}
     <script>
     {% for genreObj in favGenres %}
-    var {{genreObj.genre.name}} = $('#{{ genreObj.genre.name }}').slider(); 
+    var {{genreObj.genre.name}} = $('#{{ genreObj.genre.name }}').slider();
     {{genreObj.genre.name}}.slider('setValue', {{genreObj.weight}})
     {% endfor %}  
     </script>

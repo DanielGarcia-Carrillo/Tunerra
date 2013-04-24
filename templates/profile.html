@@ -4,13 +4,13 @@
 {% block navbar %}
     {{ block.super }}
     <ul class="nav pull-right">
-      {% if following %}
-        <!-- This shouldn't be a link, it should be javascript callback -->
-        <li><a id="unfollow" href="{{ request.path }}/unfollow">Unfollow</a></li>
-      {% else %}
-        <li><a id="follow" href="{{ request.path }}/follow">Follow</a></li>
-      {% endif %}
-      {% if user.is_authenticated and not same_user %}
+      {% if user.is_authenticated %}
+          {% if following and not same_user%}
+              <!-- This shouldn't be a link, it should be javascript callback -->
+              <li><a id="unfollow" href="{{ request.path }}/unfollow">Unfollow</a></li>
+          {% elif not following and not same_user %}
+              <li><a id="follow" href="{{ request.path }}/follow">Follow</a></li>
+          {% endif %}
           <li><a href="/accounts/feed/{{ user.username }}">Feed</a><li>
           <li><a href="{% url "logout" %}">Logout</a></li>
       {% else %}
@@ -36,8 +36,8 @@
                             <p class="post-body">{{ post.body }}</p>
                             <p class="post-info">
                             {% if user.is_authenticated %}
-                                <!--Ajax it up for link--><a href="#" class="btn btn-small">Like button</a>
-                            {% endif %} {{ post.likes }} {{ post.time }}</p>
+                                <!--Ajax it up for link--><input type="button" class="btn btn-small btn-like" id="post-{{ post.pk }}" value="{{ post.likes }}">
+                            {% endif %} - {{ post.user.username }}</p>
                         </div>
                     </li>
               </ul>

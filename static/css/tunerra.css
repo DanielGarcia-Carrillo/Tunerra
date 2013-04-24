@@ -19,6 +19,10 @@ input.facebook-connect {
     padding-top: 10px;
 }
 
+.btn-like {
+    width: 30px;
+}
+
 #posts img {
     width: 125px;
     height: 125px;
