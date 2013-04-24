@@ -10,6 +10,8 @@ import json
 import sys
 from xml.dom import minidom
 from urllib import urlopen
+from dajaxice.core import dajaxice_autodiscover, dajaxice_config
+dajaxice_autodiscover()
 
 last_fm_key = '61994d32a190d0a98684e84d6f38b41a'
 fm_loved_str = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user='
@@ -55,8 +57,8 @@ def map_page(request):
         return render(request, 'map.html', None)
     else:
         currPrefs = currPrefs[0]
-        currRegion = currPrefs.preferred_region.name
-        return render(request, 'map.html', {'username': request.user.username, 'currRegion': currRegion})
+        currRegion = currPrefs.preferred_region
+        return render(request, 'map.html', {'username': request.user.username, 'lat': currRegion.lat, 'lng': currRegion.lng})
 
 def login_error(request):
     return render(request, 'login_error.html', RequestContext(request))
