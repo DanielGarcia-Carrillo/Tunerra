@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 
 class Region(models.Model):
     name = models.CharField(max_length=100, primary_key=True, unique=True)
+    lat = models.FloatField(default = 42.0)
+    lng = models.FloatField(default = -88.0)
 
     def __unicode__(self):
         return self.name
