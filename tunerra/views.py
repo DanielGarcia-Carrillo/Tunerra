@@ -6,7 +6,10 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 import urllib
+import json
+import sys
 from xml.dom import minidom
+from urllib import urlopen
 
 last_fm_key = '61994d32a190d0a98684e84d6f38b41a'
 fm_loved_str = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user='
@@ -85,8 +88,10 @@ def settingsPage(request, pagename, vals):
         parse_LastFM_love(minidom.parse(urllib.urlopen(fm_str_req)), request) 
         notify_val = prefForm.cleaned_data['notify_system']
         region_val = prefForm.cleaned_data['region']
-
-        newReg = Region(region_val)
+        
+        newReg = newRegion(region_val)
+        
+        #newReg = Region(region_val)
         newReg.save()
 
         pop_val = prefForm.cleaned_data['popularity']
@@ -174,6 +179,8 @@ def login_signup(request):
                         email=signup_form.cleaned_data['email'],
                         password=signup_form.cleaned_data['password']
                     )
+                    
+                    
                     new_user2 = authenticate(username=signup_form.cleaned_data['username'], password=signup_form.cleaned_data['password'])
                     login(request, new_user2)
                     return HttpResponseRedirect('/accounts/welcome')
@@ -205,6 +212,25 @@ def login_signup(request):
             'signup_form': SignupForm(),
             'login_form': LoginForm()
         })
+        
+#creates a new region object with latitude and longitude
+def newRegion(region_val):                
+    startURL = 'http://maps.google.com/maps/api/geocode/json?address='
+    endURL = '&sensor=false'
+    URL = startURL + region_val + endURL
+                    
+    data = json.load(urllib.urlopen(URL))
+    if (data['status'] == "OK"):
+        currReg = region_val
+        rlat = data['results'][0]['geometry']['location']['lat']
+        rlng = data['results'][0]['geometry']['location']['lng']
+    else:
+        currReg = "Champaign, IL"
+        rlat = 42.0
+        rlng = -88.0
+    region, created = Region.objects.get_or_create(name=currReg, lat=rlat, lng=rlng)
+    return region
+        
 
 class prefsForm(forms.Form):
     correct_size_text_input = widget=forms.TextInput(attrs={'class':'input-block-level'})
