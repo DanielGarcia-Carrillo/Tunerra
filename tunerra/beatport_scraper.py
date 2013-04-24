@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import requests
+import time
 
 def setup_django_env(path):
     import imp
@@ -32,7 +33,7 @@ def save_artist(artist_name):
     """
     If the artist doesn't exist, saves it to the database and returns it. Returns existing artist record otherwise
     """
-    artist_record = Artist.objects.get_or_create(name=artist_name)
+    artist_record = Artist.objects.get_or_create(name=artist_name)[0]
     artist_record.save()
 
     return artist_record
@@ -48,7 +49,7 @@ def save_album(album_name, cover_url, release_year):
     return album_record
 
 def save_genre(genre_name):
-    genre_record = Genre.objects.get_or_create(name=genre_name)
+    genre_record = Genre.objects.get_or_create(name=genre_name)[0]
     genre_record.save()
     return genre_record
 
@@ -77,12 +78,13 @@ def scrape_api_page(page_num):
             title = track['title']
             track_number = track['trackNumber']
             bpm = track['bpm']
-            length = track['length']
+            length = time.strptime(track['length'], '%M:%S')
+            length = str(length.tm_hour) + ":" + str(length.tm_min) + ":" + str(length.tm_sec)
             genre = track['genres'][0]['name'].lower()
 
             artist_max = Artist._meta.get_field('name').max_length
             album_max = Album._meta.get_field('name').max_length
-            title_max = Song._meta.get_field('name').max_length
+            title_max = Song._meta.get_field('title').max_length
             # apparently the following condition is required, you can remove it if you like pain
             if len(artist) > artist_max or len(album) > album_max or len(title) > title_max:
                 continue
@@ -111,8 +113,11 @@ def scrape_api_page(page_num):
 if __name__ == '__main__':
     import traceback
     setup_django_env("/Users/Daniel/Tunerra/myproject")
+    import sys
 
-    from .models import Song, Genre, MetadataProvider, Album, Artist
+    sys.path.append("/usr")
+
+    from tunerra.models import Song, Genre, MetadataProvider, Album, Artist
     # We are scraping Beatport. Add it to the list of providers if it's not present
     metadata_provider = MetadataProvider.objects.filter(name="Beatport")
     if metadata_provider:

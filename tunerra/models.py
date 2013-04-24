@@ -120,6 +120,9 @@ class Like(models.Model):
     user = models.ForeignKey(User)
     liked_post = models.ForeignKey(Post)
 
+    def __unicode__(self):
+        return u"%s likes post %d" % (self.user.username, self.liked_post.pk)
+
 
 class Follows(models.Model):
     user = models.ForeignKey(User, related_name='follow_src')
