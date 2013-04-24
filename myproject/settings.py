@@ -1,10 +1,5 @@
 # Django settings for myproject project.
 
-#Celery
-import djcelery
-djcelery.setup_loader()
-
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
