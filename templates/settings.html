@@ -14,9 +14,28 @@
           </div>
         </div>
     {% endblock message %}
+{% block Allcontent %}
 {%block content %}
     {{block.super}}
     <div class="row">
+      <div class ="span2"></div>
+      <div class ="span6">
+    Customize your genre preferences:<br>
+      </div>
+    </div>
+    {% for genreObj in favGenres %}
+          <div class="control-group field wrapper">
+            <label class ="control-label">{{ genreObj.genre.name }}</label>
+            <div class="controls">
+                <input type="text" class="span2" data-slider-min="0" data-slider-max="11" data-slider-orientation="horizontal" value="{{genreObj.weight}}" name="{{genreObj.genre.name}}" id="{{ genreObj.genre.name }}" style><br>
+            </div>
+          </div>
+      {% endfor %}
+    {% block submitButton %}
+    {{block.super}}
+    {% endblock submitButton %}
+    </div>
+     <div class="row">
       <div class="span2"></div>
       <div class="span6">
         <div class="control-group field-wrapper">
@@ -27,7 +46,14 @@
         </div>
       </div>
     </div>
-
+  </div>
+  {% endblock content %}
+    <script>
+    {% for genreObj in favGenres %}
+    var {{genreObj.genre.name}} = $('#{{ genreObj.genre.name }}').slider(); 
+    {{genreObj.genre.name}}.slider('setValue', {{genreObj.weight}})
+    {% endfor %}  
+    </script>
     <!-- Modal for confirming account deletion -->
     <div class="modal hide fade" id="delete-dialog" tabindex="-1" role="dialog" aria-labelledby="delete-modal-label" aria-hidden="true">
         <div class="modal-header">
@@ -42,5 +68,4 @@
             <button class="btn btn-danger" type="submit" name="confirmed-delete">Delete</button>
         </div>
     </div>
-
-{% endblock content %}
+{% endblock Allcontent %}
