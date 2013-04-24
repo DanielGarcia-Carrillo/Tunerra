@@ -10,8 +10,6 @@ import json
 import sys
 from xml.dom import minidom
 from urllib import urlopen
-from dajaxice.core import dajaxice_autodiscover, dajaxice_config
-dajaxice_autodiscover()
 
 last_fm_key = '61994d32a190d0a98684e84d6f38b41a'
 fm_loved_str = 'http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user='
