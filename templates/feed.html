@@ -7,6 +7,7 @@
                 <input type="text" class="search-query" placeholder="Get Recommendations">
             </form>
         </li>
+        <li><a href="/accounts/profile/{{ user.username }}">Profile</a></li>
         <li><a href="{% url "map" %}">Map</a></li>
         <li><a href="{% url "settings" %}">Settings</a><li>
         <li><a href="{% url "logout" %}">Logout</a></li>
@@ -19,21 +20,13 @@
         <div class ="span2"></div>
         <div class ="span6">
             <div class = "hero-unit"><h2>Welcome back, {{user.username}}</h2></div>
-            <div class="well">
-                <h3>Favorite songs:</h3>
-                {% for Song in FavList %}
-                    <li>{{Song.title}} - {{Song.artist}}</li>
-                {% endfor %}
-            </div>
             <div class="well post-box">
                   <form method="post"> {% csrf_token %}
                       {{ post_form.non_field_errors }}
                       {{ post_form.title.errors }}
                       {{ post_form.title }}<br />
                       {{ post_form.artist.errors }}
-                      {{ post_form.arist }}<br />
-                      {{ post_form.album.errors }}
-                      {{ post_form.album }}<br />
+                      {{ post_form.artist }}<br />
                       {{ post_form.body.errors }}
                       {{ post_form.body }}
                       <div class="form-actions">
@@ -41,23 +34,33 @@
                           </div>
                   </form>
             </div>
-            <div class="well" id="feed-posts">
+            <div class="well" id="posts">
                 <ul class="media-heading">
                     {% for post in feed_posts %}
-                    <li class="media">
+                    <li class="media feed-post">
                       <a class="pull-left" href="#">
-                          <img class="media-object" data-src=SOMETHIGNLDJSKFLK">
+                          <img class="media-object" src="{{ post.song.album.cover_art_url }}">
                       </a>
                       <div class="media-body">
-                          <h4 class="media-heading">{{ post.title }} - {{ post.artist }} - {{ post.album }}</h4>
+                          <h4 class="media-heading">{{ post.song.title }} - {{ post.song.artist }} - {{ post.song.album.name }}</h4>
                           <p class="post-body">{{ post.body }}</p>
-                          <p class="post-info">{{ post.likes }} {{ post.time }} {{ post.username }}</p>
+                          <p class="post-info">{{ post.likes }} {{ post.time }} {{ post.user.username }}</p>
                       </div>
                     </li>
-                  {% endfor %}
+                    {% endfor %}
                 </ul>
 
             </div>
+        </div>
+        <div class="span3">
+          <div id="music-recs">
+              {% for rec in music_recommendations %}
+              {% endfor %}
+          </div>
+          <div id="follow-recs">
+              {% for rec in follow_recommendations %}
+              {% endfor %}
+          </div>
         </div>
     </div>
 
