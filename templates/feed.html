@@ -21,7 +21,7 @@
         <div class ="span6">
             <div class = "hero-unit"><h2>Welcome back, {{user.username}}</h2></div>
             <div class="well post-box">
-                  <form method="post"> {% csrf_token %}
+                  <form method="post" action="" id="profile-post-form" accept-charset="utf-8"> {% csrf_token %}
                       {{ post_form.non_field_errors }}
                       {{ post_form.title.errors }}
                       {{ post_form.title }}<br />
@@ -30,8 +30,8 @@
                       {{ post_form.body.errors }}
                       {{ post_form.body }}
                       <div class="form-actions">
-                              <button type="submit" class="btn btn-primary">Save changes</button>
-                          </div>
+                        <input type="submit" class="btn btn-primary" value="Submit Post">
+                      </div>
                   </form>
             </div>
             <div class="well" id="posts">
@@ -44,7 +44,10 @@
                       <div class="media-body">
                           <h4 class="media-heading">{{ post.song.title }} - {{ post.song.artist }} - {{ post.song.album.name }}</h4>
                           <p class="post-body">{{ post.body }}</p>
-                          <p class="post-info">{{ post.likes }} {{ post.time }} {{ post.user.username }}</p>
+                          <p class="post-info"><input type="button" id="post-{{ post.pk }}" class="btn btn-small btn-like" value="{{ post.likes }}"></p>
+                          {% if post.user.username != request.user.username %}
+                              {{ post.user.username }}
+                          {% endif %}
                       </div>
                     </li>
                     {% endfor %}
@@ -60,8 +63,52 @@
           <div id="follow-recs">
               {% for rec in follow_recommendations %}
               {% endfor %}
-          </div>
+          </div>™
         </div>
     </div>
 
+    <script>
+        $(".btn-like").click(function(event) {
+            event.preventDefault();
+            var $button = $(this);
+            var $id = parseInt($button.attr("id").split("-")[1]);
+
+            $.ajax({
+                url: "/accounts/profile/{{ request.user.username }}/like",
+                type: "post",
+                data: {
+                    "post_id": $id,
+                    "like_username": "{{request.user.username}}",
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                },
+                success: function(response) {
+                    if (response === "unliked") {
+                        $button.val(parseInt($button.attr("value"))-1)
+                    } else if (response === "liked") {
+                        $button.val(parseInt($button.attr("value"))+1)
+                    }
+                },
+                error: function(response) {
+                    alert("Something went wrong")
+                }
+            });
+
+        });
+
+        $("#profile-post-form").submit(function(event) {
+            event.preventDefault();
+            var $form = $(this);
+            serializedData = $form.serialize();
+
+            $.ajax({
+                url: "/accounts/feed/{{ request.user.username }}",
+                type: "post",
+                data: serializedData,
+                success: function(response) {
+                    alert(response)
+                }
+
+            });
+        });
+    </script>
 {% endblock content %}

@@ -79,7 +79,7 @@ def run(server_class = BaseHTTPServer.HTTPServer, handler_class = importHandler)
 
 def validate(username, password, q):
     songsAdded = 0
-    i = 1
+    i = -1
     user = authenticate(username=username, password=password)
     if user is None:
         print "User " + username + " validated."
@@ -162,7 +162,7 @@ def addToDatabase(trackInfo, songsAdded):
         try:
             for imageFile in jsonAlbum['image']:
                 if imageFile['size'] == 'mega':
-                    albumDict['cover_art_url'] = ['#text']
+                    albumDict['cover_art_url'] = imageFile['#text']
         except:
             print "Default cover"
             albumDict['cover_art_url'] = ''

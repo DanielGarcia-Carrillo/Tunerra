@@ -26,6 +26,9 @@ class UserPreferences(models.Model):
     preferred_popularity = models.CharField(max_length=100)
     last_fmName = models.CharField(max_length=300)
 
+    def __unicode__(self):
+        return str(self.user)
+
 
 class UserPreferredGenre(models.Model):
     user = models.ForeignKey(User)
@@ -101,9 +104,20 @@ class FollowRecommendation(Recommendation):
 class Post(models.Model):
     user = models.ForeignKey(User)
     song = models.ForeignKey(Song)
-    likes = models.IntegerField()
+    likes = models.IntegerField(default=0)
     body = models.CharField(default="", max_length=1500)
     creation_time = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        """ save will add song to favorites if it's not there and increment playcount if it is """
+        fav, created = Favorites.objects.get_or_create(user=self.user, song_id=self.song)
+        if not created:
+            fav.play_count += 1
+
+        fav.last_played = self.creation_time
+        fav.save()
+
+        super(Post, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u"%s %s %d %s" % (self.user.username, self.song.title, self.likes, self.creation_time)
@@ -113,7 +127,7 @@ class Favorites(models.Model):
     user = models.ForeignKey(User)
     hotness_level = models.IntegerField(default = 0)
     song_id = models.ForeignKey(Song)
-    play_count = models.IntegerField(default = 0)
+    play_count = models.IntegerField(default=1)
     last_played = models.DateTimeField(null=True)
     class Meta:
         unique_together=['user', 'song_id']
@@ -122,6 +136,21 @@ class Favorites(models.Model):
 class Like(models.Model):
     user = models.ForeignKey(User)
     liked_post = models.ForeignKey(Post)
+
+    def save(self, *args, **kwargs):
+        """
+        the current record doesn't have a pk if it's just being created
+        (we only want to increment likes when it's a new like)
+        """
+        if not self.pk:
+            self.liked_post.likes += 1
+            self.liked_post.save()
+        super(Like, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.liked_post.likes -= 1
+        self.liked_post.save()
+        super(Like, self).delete(*args, **kwargs)
 
     def __unicode__(self):
         return u"%s likes post %d" % (self.user.username, self.liked_post.pk)
