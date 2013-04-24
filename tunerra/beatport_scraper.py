@@ -105,7 +105,7 @@ def scrape_api_page(page_num):
                                    provider_track_id=provider_id
                 )
                 song_record.save()
-
+        write_out_progress(x)
     else:
         raise Exception('Bad request at iteration: ' + str(x))
 
