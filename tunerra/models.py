@@ -100,10 +100,11 @@ class Post(models.Model):
     user = models.ForeignKey(User)
     song = models.ForeignKey(Song)
     likes = models.IntegerField()
+    body = models.CharField(default="", max_length=1500)
     creation_time = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return u"%s %s %d %s" % (self.user.name, self.song.title, self.likes, self.creation_time)
+        return u"%s %s %d %s" % (self.user.username, self.song.title, self.likes, self.creation_time)
 
 
 class Favorites(models.Model):
