@@ -12,6 +12,7 @@
 {% endblock navbar %}
 
 {% block content %}
+	{{block.super}}
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
       html { height: 100% }
@@ -29,12 +30,14 @@
         var endURL = '&sensor=false';
         var URL = startURL + '{{currRegion}}' + endURL;
         
+        console.log(URL);
         $.get(URL, success);
       }
       
       function success(data){
         var jsonLocation = JSON.parse(data);
         var lat, lng;
+        
         if (jsonLocation.status === "OK"){
         	lat = jsonLocation.results[0].geometry.location.lat;
         	lng = jsonLocation.results[0].geometry.location.lng;
@@ -43,6 +46,7 @@
         	lat = 42;
         	lng = -88;
         }
+        
         var mapOptions = {
           center: new google.maps.LatLng(lat, lng),
           zoom: 8,
