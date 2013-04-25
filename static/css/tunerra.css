@@ -23,6 +23,11 @@ input.facebook-connect {
     width: 30px;
 }
 
+.music-rec-post img {
+    width: 48px;
+    height: 48px;
+}
+
 #posts img {
     width: 125px;
     height: 125px;
