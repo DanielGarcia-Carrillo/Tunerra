@@ -389,10 +389,10 @@ def recommendFollows(user, otherFollow):
                 return thisUser
 
     '''Otherwise just get someone random'''
-    random.shuffle(otherFollow)
+    random.shuffle(folList)
 
 
-    return otherFollow[0].user
+    return folList[0].user
 
 
 
