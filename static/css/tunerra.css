@@ -10,6 +10,9 @@ input.facebook-connect {
     vertical-align: middle; /* align the text vertically centered */
 }
 
+body {
+    background: url('../img/background.png') bottom no-repeat fixed;
+}
 .post-box textarea {
     max-width:100%;
     min-width:100%;
