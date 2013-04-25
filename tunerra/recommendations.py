@@ -363,7 +363,7 @@ def recommendFollows(user, otherFollow):
                 return thisUser
 
     '''If that gets nobody, try recommending someone that has the same popularity level as you'''
-    for followEntry in folList
+    for followEntry in folList:
         thisUser = followEntry.user
         if thisUser.preferred_popularity == user.preferred_popularity:
             if thisUser != user:
