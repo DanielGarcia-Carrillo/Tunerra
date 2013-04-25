@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from tunerra import search_views, social_views, views, feed_views, profile_views
+from tunerra import search_views, social_views, views, feed_views, profile_views, recommendation_views
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -24,8 +24,11 @@ urlpatterns = patterns('',
 
     url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})$', profile_views.ProfilePage.as_view()),
     url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})/follow$', profile_views.ProfileFollow.as_view()),
-    url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})/unfollow$', profile_views.ProfileUnfollow.as_view()),
     url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})/like', profile_views.ProfilePostLike.as_view()),
+
+    # Person and music recommendation urls
+    url(r'^accounts/rec/person$', recommendation_views.PersonRecommendation.as_view(), name='recommend_person'),
+    url(r'^accounts/rec/music$', recommendation_views.MusicRecommendation.as_view(), name='recommend_music'),
     
     url(r'^channel.html$', 'tunerra.social_views.facebook_api'),
     # Insert RESTful url here for accounts (accounts/[id] or profile/[id]) perhaps?

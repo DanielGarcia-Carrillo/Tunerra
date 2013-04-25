@@ -2,7 +2,7 @@ from django.views.generic import View
 from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth import logout
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from tunerra import models
 from django import forms
 from lastFm import getLastFmSong
@@ -23,23 +23,24 @@ class FeedPage(View):
                 except:
                     song_record = getLastFmSong(song_title, artist_name)
 
+                song_errors = list()
                 if song_record:
                     saved_post = models.Post(body=form.cleaned_data['body'], song=song_record, user=models.User.objects.get(username=request.user.username))
                     saved_post.save()
                 else:
-                    # TODO ALLL OF THE ERRORS
-                    pass
+                    song_errors.append('Given song doesn\'t exist in our records')
 
                 profile_context = self.page_context(request)
                 profile_context.update({'post_form': PostForm()})
+                profile_context.update({'song_errors': song_errors})
                 return render(request, 'feed.html', RequestContext(request, profile_context))
             else:
+                f
                 profile_context = self.page_context(request)
                 profile_context.update({'post_form': form})
                 return render(request, 'feed.html', RequestContext(request, profile_context))
         else:
-            # TODO throw some error or something
-            pass
+            return HttpResponseForbidden()
 
     # GETting the profile page just displays it
     def get(self, request, *args, **kwargs):

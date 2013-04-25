@@ -14,6 +14,7 @@ class Genre(models.Model):
     popularity = models.DecimalField(max_digits=10, decimal_places=6, default = 0)
 
     def __unicode__(self):
+        self.name = self.name
         return self.name
 
 
