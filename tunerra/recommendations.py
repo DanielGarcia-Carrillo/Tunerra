@@ -138,7 +138,7 @@ def recommendSongR(user, depth, targGenre = None):
         print "decided getting random"
         try:
             return random.choice(Song.objects.filter(genre = genOfRec))
-        except: return recommendSong(user)
+        except: return recommendSongR(user, depth + 1)
 
     '''Get a favorite song in your genre from a user that you follow'''
     if decideGetFollowed():
@@ -167,7 +167,7 @@ def recommendSongR(user, depth, targGenre = None):
             i = randint(0, allS.count())
             return allS[i]
     except:
-        return recommendSong(user)
+        return recommendSongR(user, depth + 1)
 
 '''If the user doesn't have any favorite songs or genres,
 we look to see if anyone the user is following has favorite genres
@@ -347,7 +347,7 @@ def recommendUser(user):
 
     '''Default to a random user if we really can't find anyone'''
     while True:
-        rIndex = random.randint(0, User.objects.all().count())
+        rIndex =random.randint(0, User.objects.all().count())
         try:
             currUser = User.objects.all()[rIndex]
             if not currUser == user:
@@ -389,10 +389,10 @@ def recommendFollows(user, otherFollow):
                 return thisUser
 
     '''Otherwise just get someone random'''
-    random.shuffle(otherFollow)
+    random.shuffle(folList)
 
 
-    return otherFollow[0].user
+    return folList[0].user
 
 
 
