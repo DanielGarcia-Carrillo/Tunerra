@@ -72,9 +72,11 @@
           </div>
           <div id="follow-recs" class="well">
               <input type="button" id="person-rec" value="More people recommendations">
-              {% for rec in follow_recommendations %}
-                  <a href="/accounts/profile/{{ rec.user }}"></a><br />
-              {% endfor %}
+              <ul class="nav nav-pills nav-stacked">
+                {% for rec in follow_recs %}
+                    <li><a href="{{ rec.usr_url }}">{{ rec.usr_name }}</a></li>
+                {% endfor %}
+              </ul>
           </div>
         </div>
     </div>

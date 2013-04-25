@@ -57,6 +57,8 @@ class FeedPage(View):
         music_recs = models.MusicRecommendation.objects.filter(user=request.user).order_by('-creation_time')[:5]
         music_recs = [{"rec_obj": rec, "rec_link": get_provider_link(rec.song)} for rec in music_recs]
         follow_recs = models.FollowRecommendation.objects.filter(user=request.user).order_by('-creation_time')[:5]
+        follow_recs = [{"usr_url": "/accounts/profile/"+rec.user.username, "usr_name": rec.user.username} for rec in follow_recs]
+
         follows = models.Follows.objects.filter(user=request.user)
         self_and_following = [f.following for f in follows]
         self_and_following.append(models.User.objects.get(username=request.user.username))
