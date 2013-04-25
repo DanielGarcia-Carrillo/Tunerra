@@ -97,12 +97,12 @@ class UpdateMap(View):
         if (self.latLowerBoundDegree > 0):
             rel1 = Region.objects.filter(lat__gte = self.latLowerBoundDegree).filter(lat__lte = self.latUpperBoundDegree)
         else:
-            rel1 = Region.objects.filter(lat__lte = self.latLowerBoundDegree).filter(lat__gte = self.latUpperBoundDegree)
+            rel1 = Region.objects.filter(lat__gte = self.latLowerBoundDegree).filter(lat__lte = self.latUpperBoundDegree)
                 
         if (self.lngLowerBoundDegree > 0):
             rel2 = rel1.filter(lng__gte = self.lngLowerBoundDegree).filter(lng__lte = self.lngUpperBoundDegree)
         else:
-            rel2 = rel1.filter(lng__lte = self.lngLowerBoundDegree).filter(lng__gte = self.lngUpperBoundDegree)
+            rel2 = rel1.filter(lng__gte = self.lngLowerBoundDegree).filter(lng__lte = self.lngUpperBoundDegree)
             
         return rel2
     def makeCoordinateNormal(self, num, base):
@@ -110,30 +110,32 @@ class UpdateMap(View):
             print ">0,", num
             return num
         else:
+            print ">0,", num + base
             return base + num;
     
     def getBounds(self, lat, lng):
         
         latLowerIndex = math.floor((self.makeCoordinateNormal(lat, 180)) / self.latRange)
+        print "lng=", lng
         lngLowerIndex = math.floor((self.makeCoordinateNormal(lng, 360)) / self.lngRange)
 
         if (latLowerIndex * self.latRange < 90.0):
             self.latLowerBoundDegree = latLowerIndex * self.latRange
         else:
-            self.latLowerBoundDegree = 0 - ((latLowerIndex * self.latRange) % 90)
+            self.latLowerBoundDegree = ((latLowerIndex * self.latRange) - 180)
                 
         if (lngLowerIndex * self.lngRange < 180.0):
             self.lngLowerBoundDegree = lngLowerIndex * self.lngRange
         else:
-            self.lngLowerBoundDegree = 0 - ((lngLowerIndex * self.lngRange) % 180)
+            self.lngLowerBoundDegree = ((lngLowerIndex * self.lngRange) - 360)
                 
         if (self.latLowerBoundDegree < 0):
-            self.latUpperBoundDegree = self.latLowerBoundDegree - self.latRange
+            self.latUpperBoundDegree = self.latLowerBoundDegree + self.latRange
         else:
             self.latUpperBoundDegree = self.latLowerBoundDegree + self.latRange
                 
         if (self.lngLowerBoundDegree < 0):
-            self.lngUpperBoundDegree = self.lngLowerBoundDegree - self.lngRange
+            self.lngUpperBoundDegree = self.lngLowerBoundDegree + self.lngRange
         else:
             self.lngUpperBoundDegree = self.lngLowerBoundDegree + self.lngRange
             
