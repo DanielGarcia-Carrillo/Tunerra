@@ -89,6 +89,13 @@ def addToDatabase(trackInfo, songsAdded):
             print "Default cover"
             albumDict['cover_art_url'] = ''
         print "Saving stuff"
+
+        currAlbQ = Album.objects.filter(name = albumDict['name'])
+
+        if currAlbQ.exists():
+            currAlb = Album.objects.get(name = albumDict['name'])
+            
+
         newAlb, created = Album.objects.get_or_create(**albumDict)
         newGenre, created = Genre.objects.get_or_create(name = songDict['genre'])
         newArtist, created = Artist.objects.get_or_create(name = songDict['artist'])

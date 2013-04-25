@@ -321,16 +321,18 @@ def recommendUser(user):
     for favGenre in genList:
         targUsers = UserPreferredGenre.objects.select_related().filter(genre = favGenre).filter(weight__gt = 0.0)
         if targUsers.count() > 0:
-            random.shuffle(list(targUsers))
-            if not targUsers[0] == user:
-                return targUsers[0].user
+            tList = list(targUsers)
+            random.shuffle(tList)
+            if not tList == user:
+                return tList[0].user
 
     '''If we still can't find anyone, just find someone randomly that has same popularity level'''
     simPopUsers = UserPreferences.objects.filter(preferred_popularity = currPopularity)
     if simPopUsers.count() > 0:
-        random.shuffle(simPopUsers)
-        if not simPopUsers[0].user == user:
-            return simPopUsers[0].user
+        simList = list(simPopUsers)
+        random.shuffle(simList)
+        if not simList[0].user == user:
+            return simList[0].user
 
     '''Default to a random user if we really can't find anyone'''
     while True:
