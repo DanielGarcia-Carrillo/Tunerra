@@ -27,13 +27,15 @@
         <div class="navbar-inner">
             <a class="brand" href="/">Tunerra</a>
             {% block navbar %}
-            <ul class="nav pull-right">
-                <li>
-                    <form class="navbar-search pull-left" action="{% url "search" %}" method="post"> {% csrf_token %}
-                        <input type="text" class="search-query" name="query" placeholder="Get Recommendations">
-                    </form>
-                </li>
-            </ul>
+            {% if user.is_authenticated %}
+              <ul class="nav pull-right">
+                  <li>
+                      <form class="navbar-search pull-left" action="{% url "search" %}" method="post"> {% csrf_token %}
+                          <input type="text" class="search-query" name="query" placeholder="Get Recommendations">
+                      </form>
+                  </li>
+              </ul>
+            {% endif %}
             {% endblock navbar %}
         </div>
     </div>

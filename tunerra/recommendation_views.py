@@ -39,8 +39,6 @@ class MusicRecommendation(View):
                     "artist": song.artist.name,
                     "provider_url": provider_url
                 })
-            else:
-                x -= 1
 
         return HttpResponse(content=json.dumps(rec_songs), status=200)
 

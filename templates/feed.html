@@ -103,7 +103,7 @@
                     }
                 },
                 error: function(response) {
-                    alert("Something went wrong")
+                    console.log("Something went wrong");
                 }
             });
 
@@ -131,6 +131,10 @@
                         // Because we added something to the list, we should remove from the end of the list
                         $("li.music-rec-post:last").remove();
                     }
+                },
+                error: function(response) {
+                    var $thing = response;
+                    console.log(response);
                 }
             });
         });
@@ -152,7 +156,7 @@
                 },
                 error: function(response) {
                     var $thing = response;
-                    alert(response);
+                    console.log(response);
                 }
             });
         });
