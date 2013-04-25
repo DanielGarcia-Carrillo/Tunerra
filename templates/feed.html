@@ -58,7 +58,6 @@
                 </ul>
             </div>
         </div>
-        ['results'][0]['slug']
         <div class="span3">
           <div id="music-recs" class="well">
               <input type="button" id="music-rec" value="More music Recommendations">
@@ -69,7 +68,7 @@
           <div id="follow-recs" class="well">
               <input type="button" id="person-rec" value="More people recommendations">
               {% for rec in follow_recommendations %}
-                  <a>"/accounts/profile/"{{ rec.user }}</a><br />
+                  <a href="/accounts/profile/{{ rec.user }}"></a><br />
               {% endfor %}
           </div>
         </div>
@@ -102,7 +101,8 @@
             });
 
         });
-
+    </script>
+    <script>
         //
         $("#music-rec").click(function(event) {
             event.preventDefault();
@@ -128,7 +128,7 @@
             $.ajax({
                 url: "{% url "recommend_person" %}",
                 type: "post",
-                dataType: "json"
+                dataType: "json",
                 data: {
                     "csrfmiddlewaretoken": "{{ csrf_token }}"
                 },
