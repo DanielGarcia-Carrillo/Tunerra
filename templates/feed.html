@@ -151,6 +151,7 @@
                   $("#person-rec-list").prepend("<li><a href=\"" + $rec.usr_url + "\">" + $rec.usr_name + "</a></li>");
                 },
                 error: function(response) {
+                    var $thing = response;
                     alert(response);
                 }
             });
