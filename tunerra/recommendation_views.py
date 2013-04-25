@@ -19,8 +19,7 @@ class PersonRecommendation(View):
                 return_content = json.dumps(return_dict)
                 response = HttpResponse(content=return_content, status=200)
                 return response
-        else:
-            return HttpResponse(status=403)
+        return HttpResponse(status=403)
 
 class MusicRecommendation(View):
     def post(self, request, *args, **kwargs):
