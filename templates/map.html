@@ -36,7 +36,7 @@
       	var dataObject = {
       		'lat': position.lat(),
       		'lng': position.lng()
-      	}
+      	};
       	$.ajax({
                 url: "/updatemap",
                 type: "post",
@@ -54,7 +54,7 @@
                     }
                 },
                 error: function(response) {
-                    alert("Something went wrong")
+                    console.log("Something went wrong")
                 }
             });
       }
@@ -106,7 +106,7 @@
       
       
       function my_js_callback(data){
-    	alert(data.message);
+    	  console.log(data.message);
 	  }
       
     </script>
