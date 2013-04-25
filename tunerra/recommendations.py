@@ -356,7 +356,7 @@ def recommendFollows(user, otherFollow):
     folList = list(otherFollow)
     random.shuffle(folList)
 
-    for followEntry in folList
+    for followEntry in folList:
         thisUser = followEntry.user
         if getMaxFavGenre(UserPreferredGenre.objects.filter(user = thisUser)) == myFavGen && thisUser != user:
             return thisUser
