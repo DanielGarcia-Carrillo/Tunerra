@@ -127,7 +127,7 @@
                                 "<a class=\"pull-left\"><img class=\"media-object\" src=\"" + response[i].cover_url + "\"></a>" +
                                 "<div class=\"media-body\"><a class=\"rec-body\" href=\"" + response[i].provider_url + "\">"+ response[i].title +" - "+ response[i].artist +"</a></div></li>");
                         // Because we added something to the list, we should remove from the end of the list
-                        $list.filter(":last-child").remove();
+                        $("li.music-rec-post:last").remove();
                     }
                 }
             });
