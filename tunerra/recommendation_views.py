@@ -25,8 +25,7 @@ class MusicRecommendation(View):
     def post(self, request, *args, **kwargs):
         # Just return 3 recommendations
         rec_songs = []
-        x = 0
-        while x < 3:
+        for x in range(3):
             song = recommendSong(request.user)
             recommendation, created_now = models.MusicRecommendation.objects.get_or_create(user=request.user, song=song)
             if created_now:
@@ -40,8 +39,6 @@ class MusicRecommendation(View):
                     "artist": song.artist.name,
                     "provider_url": provider_url
                 })
-            else:
-                x -= 1
 
         return HttpResponse(content=json.dumps(rec_songs), status=200)
 
