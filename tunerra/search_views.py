@@ -17,7 +17,7 @@ class search(View):
             print songList
             print userList
 
-            return render(request, 'results.html', RequestContext(request))
+            return render(request, 'results.html', RequestContext(request, {'song_list':songList, 'user_list': userList}))
         else:
 
             # Return some generic results
@@ -65,7 +65,7 @@ class search(View):
         numAlbum = Album.objects.filter(name = text)
         if numAlbum.count() > 0:
             currAlbum = Album.objects.get(name = text)
-            currSongs = Songs.objects.get(album = currAlbum)
+            currSongs = Song.objects.get(album = currAlbum)
             for x in range(0, currSongs.count()):
                 if x > 3:
                     continue
