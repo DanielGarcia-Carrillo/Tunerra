@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load dajaxice_templatetags %}
 
+
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -30,6 +31,13 @@
         <div class="navbar-inner">
             <a class="brand" href="/">Tunerra</a>
             {% block navbar %}
+            <ul class="nav pull-right">
+                <li>
+                    <form class="navbar-search pull-left" action="{% url "search" %}" method="post"> {% csrf_token %}
+                        <input type="text" class="search-query" placeholder="Get Recommendations">
+                    </form>
+                </li>
+            </ul>
             {% endblock navbar %}
         </div>
     </div>

@@ -1,4 +1,4 @@
-from tunerra.models import Song, Album, Artist, Genre, MetadataProvider
+from tunerra.models import Song, Album, Artist, Genre, MetadataProvider, Favorites
 import urllib2
 import json
 import datetime
@@ -9,6 +9,7 @@ lastFmLink_Track = 'http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_k
 
 '''Validates and enters new song into database'''
 def getLastFmSong(title, artist):
+    print "getting last FM song"
     mtitle = title.replace(' ', '+')
     martist = artist.replace(' ', '+')
     newLink = lastFmLink_Track.replace('!', martist).replace('$', mtitle).replace(' ', '')
@@ -18,22 +19,37 @@ def getLastFmSong(title, artist):
         jsonSong = json.load(head.open(req))        
     except: return None
     if 'error' in jsonSong:
+        print "error in json song"
         return None
     trackInfo = jsonSong['track']
     try:
         thisSong = Song.objects.get(title = title, artist__name = artist)
+        print "Song found already!"
         return thisSong
     except:
         pass
+    print "about to add to database"
     return addToDatabase(trackInfo, 0)
 
 
+def getLastFMSongAuth(title, artist, user):
+    newSong = getLastFmSong(title, artist)
+    print "New song name is: " + newSong.title
+    try:
+        print "Adding the favorite for " + str(user)
+        print "Song is " + newSong.title + " - " + newSong.artist.name
+        thisFav = Favorites(user = user, song_id = newSong, last_played = datetime.datetime.now().strftime("%Y-%m-%d"))
+        print str(thisFav)
+        thisFav.save()
+    except Exception as e:
+            pass
 
 
 
 
 def addToDatabase(trackInfo, songsAdded):
 #Otherwise let's insert it into the database
+    print "Adding song into database"
     try:
         songDict = dict()
         albumDict = dict()
@@ -72,6 +88,7 @@ def addToDatabase(trackInfo, songsAdded):
         except:
             print "Default cover"
             albumDict['cover_art_url'] = ''
+        print "Saving stuff"
         newAlb, created = Album.objects.get_or_create(**albumDict)
         newGenre, created = Genre.objects.get_or_create(name = songDict['genre'])
         newArtist, created = Artist.objects.get_or_create(name = songDict['artist'])
@@ -84,7 +101,5 @@ def addToDatabase(trackInfo, songsAdded):
         newSong.save()
         return newSong
     except Exception as e:
+        print e
         return None
-
-
-

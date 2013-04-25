@@ -9,6 +9,7 @@
             <li><a href="{% url "login_signup" %}">Signup/Login</a></li>
         {% endif %}
     </ul>
+    {{block.super}}
 {% endblock navbar %}
 
 {% block content %}

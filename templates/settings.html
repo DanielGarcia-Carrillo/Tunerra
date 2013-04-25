@@ -5,6 +5,7 @@
       <li><a href="/accounts/feed/{{ user.username }}">Feed</a><li>
       <li><a href="{% url "logout" %}">Logout</a></li>
     </ul>
+{{block.super}}
 {% endblock %}
     {% block message %}
         <div class="row">
@@ -27,7 +28,7 @@
           <div class="control-group field wrapper">
             <label class ="control-label">{{ genreObj.genre.name }}</label>
             <div class="controls">
-                <input type="text" class="span2" data-slider-min="0" data-slider-max="11" data-slider-orientation="horizontal" value="{{genreObj.weight}}" name="{{genreObj.genre.name}}" id="{{ genreObj.genre.name }}" style><br>
+                <input type="text" class="input-block-level" data-slider-min="0" data-slider-max="11" data-slider-orientation="horizontal" value="{{genreObj.weight}}" name="{{genreObj.genre.name}}" id="{{ genreObj.genre.name }}" style><br>
             </div>
           </div>
       {% endfor %}

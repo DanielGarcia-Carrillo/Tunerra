@@ -1,6 +1,7 @@
 from django.template import RequestContext
 from django.shortcuts import render
 from django import forms
+from tunerra import lastFm
 from tunerra.models import Song, Favorites, UserPreferences, Region, UserPreferredGenre, Genre
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
@@ -9,6 +10,11 @@ import urllib
 import json
 import sys
 from xml.dom import minidom
+import requests
+import sys
+import threading
+from time import sleep
+import thread
 from urllib import urlopen
 
 last_fm_key = '61994d32a190d0a98684e84d6f38b41a'
@@ -20,30 +26,24 @@ POPULARITY_CHOICE = {('1', 'Low Popularity'),
 celeryrun = 0
 
 
-#Add songs
-def parse_LastFM_love(xmltree, request):
+def runLastFMThread(xmltree, user):
     for lfm in xmltree.getElementsByTagName('lfm'):
         for lovedSongs in xmltree.getElementsByTagName('lovedtracks'):
             for song in lfm.getElementsByTagName('track'):
+                #print str(user)
+                sleep(1)
                 try:
                     title = song.getElementsByTagName('name')[0].firstChild.nodeValue
                     artist = song.getElementsByTagName('artist')[0].getElementsByTagName('name')[0].firstChild.nodeValue
-                    newSong = Song(title = title, artist = artist, album='noalb', year ='1999-01-22')
-                except: continue
+                    lastFm.getLastFMSongAuth(title, artist, user)
+                except:
+                    continue
 
-                newSong.save()
-                newFav = Favorites()
-                user = request.user
-                hotness_level = 0
-                song_id = newSong
-                play_count = 1
-                last_played = song.getElementsByTagName('date')[0].firstChild.nodeValue
 
-                newFav = Favorites(user = user, hotness_level = hotness_level, song_id = song_id, play_count = play_count, last_played='1999-01-22')
-                newFav.save()
-
-                # print "SONGS ARE: " + song.getElementsByTagName('name')[0].firstChild.nodeValue
-
+#Add songs
+def parse_LastFM_love(xmltree, user):
+    t = threading.Thread(target = runLastFMThread, args =(xmltree, user))
+    t.start()
 
 def index(request):
     if request.user.is_authenticated():
@@ -89,7 +89,7 @@ def settingsPage(request, pagename, vals):
     if prefForm.is_valid():
         lastFMusername = prefForm.cleaned_data['LastFMusername']
         fm_str_req = fm_loved_str + lastFMusername + "&api_key=" + last_fm_key
-        parse_LastFM_love(minidom.parse(urllib.urlopen(fm_str_req)), request) 
+        parse_LastFM_love(minidom.parse(urllib.urlopen(fm_str_req)), request.user) 
         notify_val = prefForm.cleaned_data['notify_system']
         region_val = prefForm.cleaned_data['region']
         
@@ -118,6 +118,8 @@ def settingsPage(request, pagename, vals):
                 favgen.save(force_update= True)
 
             for genreWord in genreVals:
+                if not genreWord:
+                    continue
                 currGenre, created = Genre.objects.get_or_create(name= genreWord)
                 if not UserPreferredGenre.objects.filter(user=request.user, genre = currGenre).exists():
                     UserPreferredGenre.objects.get_or_create(user = request.user, genre = currGenre, weight=1.0)
@@ -128,8 +130,15 @@ def settingsPage(request, pagename, vals):
             # INSERT INTO UserPreferences (user, notify_system, preferred_region, preferred_popularity, preferred_genre) VALUES ?,?,?,?,?
             newPrefs = UserPreferences(user = request.user, notify_system = notify_val,
             preferred_region = newReg, preferred_popularity = pop_val, last_fmName = lastFMusername)
+            if not genre_val:
+                newPrefs.save()
+                return HttpResponseRedirect('/accounts/feed/'+request.user.username)
+
             genreVals = genre_val.replace(' ', '_').split(',')
             for genreWord in genreVals:
+                genreWord = genreWord.lstrip()
+                if not genreWord:
+                    continue
                 currGenre, created = Genre.objects.get_or_create(name= genreWord)
                 UserPreferredGenre.objects.get_or_create(user = request.user, genre = currGenre, weight=1.0)
 
@@ -160,7 +169,7 @@ def settings(request):
     favGenreString = favGenreString[:-1]
 
     vals = {'notify_system': currNotify, 'region': currReg, 
-    'popularity': currPop, 'LastFMusername': lastFM_username, 'genre': favGenreString }
+    'popularity': currPop, 'LastFMusername': lastFM_username}
 
     return settingsPage(request, 'settings.html', vals)
 
@@ -203,6 +212,10 @@ def login_signup(request):
                     return HttpResponse()
                 else:
                     login(request, user)
+                    last_fmName = UserPreferences.objects.get(user = user).last_fmName
+                    print user.username
+                    fm_str_req = fm_loved_str + last_fmName + "&api_key=" + last_fm_key
+                    parse_LastFM_love(minidom.parse(urllib.urlopen(fm_str_req)), user) 
                     # Send to profile
                     return HttpResponseRedirect('/accounts/feed/'+login_username)
             else:
@@ -239,9 +252,9 @@ def newRegion(region_val):
 class prefsForm(forms.Form):
     correct_size_text_input = widget=forms.TextInput(attrs={'class':'input-block-level'})
     notify_system = forms.BooleanField(required=False)
-    region = forms.CharField(max_length=100, initial = 'Chicago', widget=correct_size_text_input)
+    region = forms.CharField(max_length=100, initial = 'Champaign', widget=correct_size_text_input)
     popularity = forms.ChoiceField(choices=POPULARITY_CHOICE, widget=forms.Select(attrs={'class':'input-block-level'}))
-    genre = forms.CharField(max_length=100, widget=correct_size_text_input)
+    genre = forms.CharField(required=False, max_length=1000, widget=correct_size_text_input)
     LastFMusername = forms.CharField(max_length=50, required=False, widget=correct_size_text_input)
 
 class SignupForm(forms.Form):
