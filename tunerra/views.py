@@ -90,7 +90,7 @@ def settingsPage(request, pagename, vals):
         lastFMusername = prefForm.cleaned_data['LastFMusername']
         fm_str_req = fm_loved_str + lastFMusername + "&api_key=" + last_fm_key
         parse_LastFM_love(minidom.parse(urllib.urlopen(fm_str_req)), request.user) 
-        notify_val = prefForm.cleaned_data['notify_system']
+        notify_val = True
         region_val = prefForm.cleaned_data['region']
         
         newReg = newRegion(region_val)
@@ -256,7 +256,7 @@ def newRegion(region_val):
 
 class prefsForm(forms.Form):
     correct_size_text_input = widget=forms.TextInput(attrs={'class':'input-block-level'})
-    notify_system = forms.BooleanField(required=False, hidden = True)
+    #notify_system = forms.BooleanField(required=False, hidden = True)
     region = forms.CharField(max_length=100, initial = 'Champaign', widget=correct_size_text_input)
     popularity = forms.ChoiceField(choices=POPULARITY_CHOICE, widget=forms.Select(attrs={'class':'input-block-level'}))
     genre = forms.CharField(required=False, max_length=1000, widget=correct_size_text_input)
