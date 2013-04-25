@@ -42,7 +42,7 @@ class search(View):
         if numGenre.count() > 0:
             currGenre = Genre.objects.get(name = text)
             for x in range (0, 3):
-                songList.append(recommendations.recommendSong)
+                songList.append(recommendations.recommendSong(user, currGenre))
 
         numArtist = Artist.objects.filter(name = text)
         if numArtist.count() > 0:
@@ -50,10 +50,11 @@ class search(View):
             artSongs = Song.objects.filter(artist = currArtist)
             i = random.randint(0, artSongs.count())
             for x in range(0, artSongs.count()):
-
-                songList.append(artSongs[i])
-            for x in range(0, artSongs.count()):
                 if x > 3:
+                    continue
+                songList.append(artSongs[x])
+            for x in range(0, artSongs.count()):
+                if x > 7:
                     continue
                 i = random.randint(0, artSongs.count())
                 try:
@@ -86,8 +87,10 @@ class search(View):
                 userList.append(use.following)
                 random.shuffle(userList)
             userList.append(numPerson[0])
+        random.shuffle(songList)
+        random.shuffle(userList)
 
-        return songList, userList
+        return list(set(songList)), list(set(userList))
 
 
 
