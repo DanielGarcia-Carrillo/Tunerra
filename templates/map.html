@@ -19,6 +19,8 @@
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
       #map_canvas { min-width: 500px; min-height: 500px;}
+      #map_canvas img{max-width:inherit; max-height: inherit;}
+      #imageInfo {max-width:300px; max-height: 300px;}
     </style>
     
     
@@ -28,7 +30,7 @@
     </script>
     <script type="text/javascript">
       var map;
-      
+      var infoWindow;
       function getSongsInRegion(){
       	var position = map.getCenter();
       	var dataObject = {
@@ -44,13 +46,47 @@
                     "csrfmiddlewaretoken": "{{ csrf_token }}"
                 },
                 success: function(data) {
-                    alert(data);
+                	if (data === ""){
+                		
+                	}
+                    else{
+                    	createInfoWindow(JSON.parse(data));
+                    }
                 },
                 error: function(response) {
                     alert("Something went wrong")
                 }
             });
       }
+      
+      function createInfoWindow(data){
+		var content = "";
+		if(infoWindow){
+       		infoWindow.setContent(null);
+	       	infoWindow.close();
+       	}
+       	infoWindow = new google.maps.InfoWindow({
+       		content: content
+       	});
+        infoWindow.open(map);
+        infoWindow.setPosition(new google.maps.LatLng(data.lat, data.lng));
+        infoWindowHTML(data);
+      }
+      
+      function infoWindowHTML(data){
+      	if (data == null){
+			infoWindow.setContent(null);
+		}
+		else{
+			var content = '<div><table>'+
+				'<tr><td>'+data.title +'</td></tr>' +
+				'<tr><td>'+data.artist+'</td></tr>' +
+				'<tr><td>'+data.album +'</td></tr>' +
+				'<tr><td><span id="imageInfo"><img src=\"' + data.icon + '\"></span></td></tr></table></div>';
+			infoWindow.setContent(content);
+		}
+		infoWindow.open(map);
+	  }
       
       function initialize() {
       	lat = {{lat}};
@@ -75,7 +111,4 @@
       
     </script>
     <div id="map_canvas"></div>
-    <div>
-    	<input type='button' value="Click" onclick="Dajaxice.tunerra.sayhello(my_js_callback);" />
-    </div>
     {% endblock content %}
