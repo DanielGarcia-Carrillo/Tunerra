@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'tunerra',
     'dajaxice',
     'dajax',
+    'south',
 )
 
 # A sample logging configuration. The only tangible logging
