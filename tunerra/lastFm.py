@@ -24,6 +24,7 @@ def getLastFmSong(title, artist):
     trackInfo = jsonSong['track']
     try:
         thisSong = Song.objects.get(title = title, artist__name = artist)
+        print Song.objects.get(title = title, artist__name = artist).query()
         print "Song found already!"
         return thisSong
     except:
