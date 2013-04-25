@@ -72,7 +72,7 @@
           </div>
           <div id="follow-recs" class="well">
               <input type="button" id="person-rec" value="More people recommendations">
-              <ul class="nav nav-pills nav-stacked">
+              <ul class="nav nav-pills nav-stacked" id="person-rec-list">
                 {% for rec in follow_recs %}
                     <li><a href="{{ rec.usr_url }}">{{ rec.usr_name }}</a></li>
                 {% endfor %}
@@ -147,7 +147,8 @@
                     "csrfmiddlewaretoken": "{{ csrf_token }}"
                 },
                 success: function(response) {
-                  var $thing = response[0];
+                  var $rec = response[0];
+                  $("#person-rec-list").prepend("<li><a href=\"" + $rec.usr_url + "\">" + $rec.usr_name + "</a></li>");
                 }
             });
         });
