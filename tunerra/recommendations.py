@@ -357,6 +357,9 @@ def recommendFollows(user, otherFollow):
     global currWeight
 
 
+    preferredGenres = UserPreferredGenre.objects.filter(user = user).filter(weight__gt = 0.0)
+
+
     '''Instead of just recommending anyone, try recommending someone that has the same favorite Genre as you'''    
     myFavGen = getMaxFavGenre(preferredGenres)
 
