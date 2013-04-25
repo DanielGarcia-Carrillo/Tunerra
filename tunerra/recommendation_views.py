@@ -12,14 +12,14 @@ lastFmLink_Track = 'http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_k
 class PersonRecommendation(View):
     def post(self, request, *args, **kwargs):
         recommended_user = recommendUser(request.user)
+        return_dict = [{"usr_name": recommended_user.username, "usr_url": ("/accounts/profile/" + recommended_user.username)}]
         if recommended_user:
             rec, created_now = models.FollowRecommendation.objects.get_or_create(user=request.user, follow_user=recommended_user)
             if created_now:
-                return_dict = [{"usr_name": recommended_user.username, "usr_url": ("/accounts/profile/" + recommended_user.username)}]
                 return_content = json.dumps(return_dict)
                 response = HttpResponse(content=return_content, status=200)
                 return response
-        return HttpResponse(status=403)
+        return HttpResponse(status=403, content=json.dumps(return_dict))
 
 class MusicRecommendation(View):
     def post(self, request, *args, **kwargs):
