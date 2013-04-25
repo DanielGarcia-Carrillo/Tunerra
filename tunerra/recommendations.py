@@ -347,7 +347,7 @@ def recommendUser(user):
 
     '''Default to a random user if we really can't find anyone'''
     while True:
-        rIndex = random.randint(0, User.objects.all().count())
+        rIndex =random.randint(0, User.objects.all().count())
         try:
             currUser = User.objects.all()[rIndex]
             if not currUser == user:
