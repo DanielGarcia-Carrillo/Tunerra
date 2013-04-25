@@ -245,6 +245,11 @@ def newRegion(region_val):
         currReg = "Champaign, IL"
         rlat = 42.0
         rlng = -88.0
+    if Region.objects.filter(name=currReg).exists():
+        thisReg = Region.objects.get(name = currReg)
+        thisReg.lat = rlat
+        thisReg.lng = rlng
+        return thisReg
     region, created = Region.objects.get_or_create(name=currReg, lat=rlat, lng=rlng)
     return region
         
