@@ -320,7 +320,9 @@ def recommendUser(user):
         '''First search for people who also follow who you follow'''
         otherFollow = Follows.objects.select_related().filter(following__in = [fUser.following for fUser in  youFollow])
         if otherFollow.count() > 0:
-            return recommendFollows(user, otherFollow)
+            tryUsr = recommendFollows(user, otherFollow)
+            if not tryUsr == user:
+                return tryUsr
 
     genList = list(preferredGenres)
 
@@ -388,6 +390,7 @@ def recommendFollows(user, otherFollow):
 
     '''Otherwise just get someone random'''
     random.shuffle(otherFollow)
+
 
     return otherFollow[0].user
 
