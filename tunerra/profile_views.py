@@ -22,7 +22,7 @@ class ProfilePage(View):
 
         # Fetch all of this user's posts by creation time
         user_posts = models.Post.objects.filter(user=profile_user).order_by('-creation_time')[:10]
-
+        print models.Post.objects.filter(user=profile_user).order_by('-creation_time')[:10].query
         favList = models.Favorites.objects.filter(user=request.user).order_by('-play_count')[:10]
         favSongList = list()
         for fav in favList:
