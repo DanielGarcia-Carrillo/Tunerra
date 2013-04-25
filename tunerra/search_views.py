@@ -90,6 +90,10 @@ class search(View):
         random.shuffle(songList)
         random.shuffle(userList)
 
+        userList.append(recommendations.recommendUser(user))
+        userList.append(recommendations.recommendUser(user))
+
+
         return list(set(songList)), list(set(userList))
 
 
