@@ -65,6 +65,12 @@ def map_page(request):
 def login_error(request):
     return render(request, 'login_error.html', RequestContext(request))
 
+
+def delete(request):
+    if 'confirmed-delete' in request.POST or 'confirmed-delete' in request.GET:
+        request.user.delete()
+        return HttpResponseRedirect('/')
+
 def settingsPage(request, pagename, vals):
     if not request.user.is_authenticated():
         return HttpResponseRedirect('/login_error')
@@ -77,13 +83,6 @@ def settingsPage(request, pagename, vals):
         for favObj in favGenres:
             favObj.weight = favObj.weight * 11.0
         return render(request, pagename, {'prefsForm': prefForm, 'favGenres': favGenres} )
-    
-    #Request is a POST
-    if 'confirmed-delete' in request.POST:
-        #TODO make sure admins can't be deleted
-        #DELETE FROM Users WHERE id = request.user.id
-        request.user.delete()   #CASCADEs
-        return HttpResponseRedirect('/')
 
     prefForm = prefsForm(request.POST)
     if prefForm.is_valid():

@@ -65,8 +65,10 @@
             <p>Are you really sure that you want to delete your account?</p>
         </div>
         <div class="modal-footer">
+            <form action="{% url "delete" %}">
+                <input class="btn btn-danger" type="submit" name="confirmed-delete" value="Delete">
+            </form>
             <a class="btn" data-dismiss="modal" aria-hidden="true">Cancel</a>
-            <button class="btn btn-danger" type="submit" name="confirmed-delete">Delete</button>
         </div>
     </div>
 {% endblock Allcontent %}
