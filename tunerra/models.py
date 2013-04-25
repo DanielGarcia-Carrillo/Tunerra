@@ -116,8 +116,13 @@ class Favorites(models.Model):
     song_id = models.ForeignKey(Song)
     play_count = models.IntegerField(default = 0)
     last_played = models.DateTimeField(null=True)
+
+    def __unicode__(self):
+        return str(self.user) + " <3 " + str(self.song_id)
+
     class Meta:
         unique_together=['user', 'song_id']
+
 
 
 class Like(models.Model):
