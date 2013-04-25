@@ -322,14 +322,14 @@ def recommendUser(user):
         targUsers = UserPreferredGenre.objects.select_related().filter(genre = favGenre).filter(weight__gt = 0.0)
         if targUsers.count() > 0:
             random.shuffle(list(targUsers))
-            if targUsers[0] != user:
+            if not targUsers[0] == user:
                 return targUsers[0].user
 
     '''If we still can't find anyone, just find someone randomly that has same popularity level'''
     simPopUsers = UserPreferences.objects.filter(preferred_popularity = currPopularity)
     if simPopUsers.count() > 0:
         random.shuffle(simPopUsers)
-        if simPopUsers[0].user != user:
+        if not simPopUsers[0].user == user:
             return simPopUsers[0].user
 
     '''Default to a random user if we really can't find anyone'''
@@ -337,7 +337,7 @@ def recommendUser(user):
         rIndex = random.randint(0, User.objects.all().count())
         try:
             currUser = User.objects.all()[rIndex]
-            if currUser != user:
+            if not currUser == user:
                 return User.objects.all()[rIndex]
         except:
             pass
@@ -366,7 +366,7 @@ def recommendFollows(user, otherFollow):
     for followEntry in folList:
         thisUser = followEntry.user
         if thisUser.preferred_popularity == user.preferred_popularity:
-            if thisUser != user:
+            if not thisUser == user:
                 return thisUser
 
     '''Otherwise just get someone random'''
