@@ -6,9 +6,10 @@ from django.views.generic import View
 from django.template import RequestContext
 from django.http import Http404, HttpResponseBadRequest, HttpResponse, HttpResponseForbidden
 from tunerra import models, views
-from tunerra.models import Region, UserPreferences, Favorites
+from tunerra.models import Region, UserPreferences, Favorites, Song
 from datetime import datetime
 from json.encoder import JSONEncoder
+from django.db.models import Count, Sum, Max
 
 
 class UpdateMap(View):
@@ -32,6 +33,7 @@ class UpdateMap(View):
             print "after get bounds"
             
             regions = self.getRegionsInBounds()
+            print regions
             print "got regions"
             userPrefs = UserPreferences.objects.filter(preferred_region__in=regions)
             print userPrefs
@@ -41,14 +43,52 @@ class UpdateMap(View):
                 for prefs in userPrefs:
                     favLst.append(prefs.user)
                 favs = Favorites.objects.filter(user__in = favLst)
+                for fav in favs:
+                    print fav
+                    print fav.play_count
             except Exception as e:
                 print e
-            print favs
             print "got favs"
+            try:
+                relation = favs.values('song_id').annotate(playcnt=Sum('play_count'))
+            except Exception as e:
+                print e
+            print relation
+            
+            max = -1
+            songID = None
+            try:
+                for song in relation:
+                    print song
+                    if song['playcnt'] > max:
+                        songID = song['song_id']
+                        max = song['playcnt']
+            except Exception as e:
+                print e
+            
+            
+                    
+            print songID
+            print max
+            try:
+                mostPopSong = Song.objects.get(id = songID)
+                print mostPopSong
+            except Exception as e:
+                print e
             
             response = HttpResponse()
             
-            response.content = json.dumps({'lat': lat, 'lng': lng})       
+            try:
+                response.content = json.dumps({'lat': lat, 
+                                               'lng': lng, 
+                                               'title':mostPopSong.title,
+                                               'artist': mostPopSong.artist.name,
+                                               'album': mostPopSong.album.name, 
+                                               'icon':mostPopSong.album.cover_art_url,
+                                               })
+            except Exception as e:
+                print e
+            print response.content
             return response
         except:
             return HttpResponseBadRequest()
