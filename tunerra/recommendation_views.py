@@ -34,7 +34,10 @@ class MusicRecommendation(View):
                     r_content = r.json()
                     provider_url = r_content['results'][0]['slug']
             else:
-                r = requests.get('')
+                r = requests.get(lastFmLink_Track.replace('!', song.artist.name).replace('$', song.title).replace(' ', ''))
+                if r.status_code == 200:
+                    pass
+
 
             rec_songs.append({
                 "cover_url": cover_url,
