@@ -39,7 +39,7 @@
                 <ul class="media-heading">
                     {% for post in feed_posts %}
                     <li class="media feed-post">
-                      <a class="pull-left" href="#">
+                      <a class="pull-left">
                           <img class="media-object" src="{{ post.song.album.cover_art_url }}">
                       </a>
                       <div class="media-body">
@@ -57,9 +57,18 @@
         <div class="span3">
           <div id="music-recs" class="well">
               <input type="button" id="music-rec" value="More music Recommendations">
-              {% for rec in music_recommendations %}
-                  <a>{{ rec.provider_id }}</a><br />
-              {% endfor %}
+              <ul class="media-heading">
+                {% for rec in music_recs %}
+                    <li class="media music-rec-post">
+                      <a class="pull-left">
+                          <img class="media-object" src="{{ rec.rec_obj.song.album.cover_art_url }}">
+                      </a>
+                      <div class="media-body">
+                          <a class="rec-body" href="{{ rec.rec_link }}">{{ rec.rec_obj.song.title }} - {{ rec.rec_obj.song.artist.name }}</a>
+                      </div>
+                    </li>
+                {% endfor %}
+              </ul>
           </div>
           <div id="follow-recs" class="well">
               <input type="button" id="person-rec" value="More people recommendations">
@@ -112,7 +121,7 @@
                     "csrfmiddlewaretoken": "{{ csrf_token }}"
                 },
                 success: function(response) {
-
+                  response.rec_usr
                 }
             });
         });
@@ -129,7 +138,7 @@
                     "csrfmiddlewaretoken": "{{ csrf_token }}"
                 },
                 success: function(response) {
-
+                  var $thing = response[0];
                 }
             });
         });
