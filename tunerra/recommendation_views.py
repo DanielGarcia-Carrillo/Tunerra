@@ -1,5 +1,5 @@
 from tunerra import models
-from django.Http import HttpResponse
+from django.http import HttpResponse
 from django.views.generic import View
 
 
