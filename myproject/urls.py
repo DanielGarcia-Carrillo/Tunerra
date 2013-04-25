@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from tunerra import search_views, social_views, views, feed_views, profile_views, recommendation_views
+from tunerra import search_views, social_views, views, feed_views, profile_views, recommendation_views, map
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     url(r'^accounts/settings$', 'tunerra.views.settings', name='settings'),
     url(r'^accounts/facebook_connect$', social_views.facebook_connect.as_view()),
     url(r'^map$', 'tunerra.views.map_page', name='map'),
+    url(r'^updatemap$', map.UpdateMap.as_view()),
 
     url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})$', profile_views.ProfilePage.as_view()),
     url(r'^accounts/profile/(?P<username>[A-Z|a-z|0-9|+|\-|_|.|@]{1,30})/follow$', profile_views.ProfileFollow.as_view()),
