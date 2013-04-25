@@ -2,7 +2,6 @@
 {% load staticfiles %}
 
 {% block navbar %}
-    {{ block.super }}
     <ul class="nav pull-right">
       {% if user.is_authenticated %}
           {% if following and not same_user%}
@@ -17,6 +16,7 @@
           <li><a href="{% url "login_signup" %}">Signup/Login</a></li>
       {% endif %}
     </ul>
+    {{block.super}}
 {% endblock %}
 
 {% block content %}

@@ -4,8 +4,11 @@ from django.template import RequestContext
 from tunerra import recommendations
 
 class search(View):
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         if request.user.is_authenticated():
+
+            print str(args)
+
             print "recommendations"
             # return user specific results
             newSong = recommendations.recommendSong(request.user)
@@ -16,3 +19,9 @@ class search(View):
         else:
             # Return some generic results
             return render(request, 'results.html', RequestContext(request))
+
+    '''Find out if this is a song, person, artist, genre'''
+    def parseText(self, user, Request):
+        pass
+
+

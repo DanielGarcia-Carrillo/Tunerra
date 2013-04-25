@@ -9,18 +9,7 @@
         <li><a href="{% url "login_signup" %}">Signup/Login</a></li>
       {% endif %}
     </ul>
+    {{block.super}}
 {% endblock navbar %}
 {% block content %}
-    <div class="row-fluid">
-        <div class="span4"></div>
-        <div id="search-box" class="span4" style="margin-left: auto; margin-right: auto;">
-            <form class="form-search well" id="search-form" action="{% url "search" %}" method="get">
-                <div class="input-append">
-                    <input type="text" id="recommendation-query" class="search-query">
-                    <button type="submit" class="btn">Search</button>
-                </div>
-            </form>
-        </div>
-        <div class="span4"></div>
-    </div>
 {% endblock content %}
