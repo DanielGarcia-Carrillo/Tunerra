@@ -176,6 +176,14 @@ class Follows(models.Model):
     def __unicode__(self):
         return u"%s -> %s" % (self.user.username, self.following.username)
 
+    def save(self, *args, **kwargs):
+        try:
+            rec = FollowRecommendation.objects.get(user=self.user, follow_user=self.following)
+            rec.delete()
+        except:
+            pass
+        super(Follows, self).save(*args, **kwargs)
+
     # Not sure if this is necessary because there are only two attributes in the table
     class Meta:
         unique_together = ['user', 'following']
