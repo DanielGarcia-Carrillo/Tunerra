@@ -6,6 +6,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from tunerra import models
 from django import forms
 from lastFm import getLastFmSong
+from recommendation_views import get_provider_link
 
 
 class FeedPage(View):
@@ -35,7 +36,6 @@ class FeedPage(View):
                 profile_context.update({'song_errors': song_errors})
                 return render(request, 'feed.html', RequestContext(request, profile_context))
             else:
-                f
                 profile_context = self.page_context(request)
                 profile_context.update({'post_form': form})
                 return render(request, 'feed.html', RequestContext(request, profile_context))
@@ -53,9 +53,10 @@ class FeedPage(View):
             raise Http404
 
     def page_context(self, request):
-        # Order posts by descending creation_time order and get 10 latest TODO respond to pagination, ie get later pages on request
-        music_recs = models.MusicRecommendation.objects.filter(user=request.user).order_by('-creation_time')[:10]
-        follow_recs = models.FollowRecommendation.objects.filter(user=request.user).order_by('-creation_time')[:10]
+        # Order posts by descending creation_time order and get 10 latest
+        music_recs = models.MusicRecommendation.objects.filter(user=request.user).order_by('-creation_time')[:5]
+        music_recs = [{"rec_obj": rec, "rec_link": get_provider_link(rec.song)} for rec in music_recs]
+        follow_recs = models.FollowRecommendation.objects.filter(user=request.user).order_by('-creation_time')[:5]
         follows = models.Follows.objects.filter(user=request.user)
         self_and_following = [f.following for f in follows]
         self_and_following.append(models.User.objects.get(username=request.user.username))
