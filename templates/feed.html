@@ -149,6 +149,9 @@
                 success: function(response) {
                   var $rec = response[0];
                   $("#person-rec-list").prepend("<li><a href=\"" + $rec.usr_url + "\">" + $rec.usr_name + "</a></li>");
+                },
+                error: function(response) {
+                    alert(response);
                 }
             });
         });
