@@ -256,7 +256,7 @@ def newRegion(region_val):
 
 class prefsForm(forms.Form):
     correct_size_text_input = widget=forms.TextInput(attrs={'class':'input-block-level'})
-    notify_system = forms.BooleanField(required=False)
+    notify_system = forms.BooleanField(required=False, hidden = True)
     region = forms.CharField(max_length=100, initial = 'Champaign', widget=correct_size_text_input)
     popularity = forms.ChoiceField(choices=POPULARITY_CHOICE, widget=forms.Select(attrs={'class':'input-block-level'}))
     genre = forms.CharField(required=False, max_length=1000, widget=correct_size_text_input)

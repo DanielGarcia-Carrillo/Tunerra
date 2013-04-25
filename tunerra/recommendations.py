@@ -159,7 +159,13 @@ def recommendSongR(user, depth, targGenre = None):
 
     print "just getting random song:"
     try:
-        return random.choice(Song.objects.filter(genre = genOfRec))
+        randSong = Song.objects.filter(genre = genOfRec)
+        if randSong.exists():
+            return randSong[0]
+        else:
+            allS = Song.objects.all()
+            i = randint(0, allS.count())
+            return allS[i]
     except:
         return recommendSong(user)
 
@@ -342,7 +348,8 @@ def recommendUser(user):
             if not currUser == user:
                 return User.objects.all()[rIndex]
         except:
-            pass
+            continue
+    return User.objects.all()[0]
 
 def recommendFollows(user, otherFollow):
     global high_pop_weight
