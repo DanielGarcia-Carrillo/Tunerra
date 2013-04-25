@@ -281,8 +281,13 @@ def getMaxFavGenre(preferredGenres):
     global currPopularity
     global currWeight
 
-    max_weight = preferredGenres.objects.all().aggregate(Max('weight'))['weight__max']
-    return preferredGenres.objects.filter(weight =  max_weight)[0]
+    maxGenre = None
+    max_weight = 0.0
+    for genObj in preferredGenres:
+        if genObj.genre.weight > max_weight:
+            max_weight = genObj.genre.weight
+            maxGenre = genObj.genre
+    return maxGenre
 
 def recommendUser(user):
     global high_pop_weight
