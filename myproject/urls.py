@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'tunerra.views.index', name='home'),
     url(r'^search$', search_views.search.as_view(), name='search'),
+    url(r'^accounts/delete$', 'tunerra.views.delete', name='delete'),
 
     url(r'^accounts$', 'tunerra.views.login_signup', name='login_signup'),
     url(r'^accounts/welcome$', 'tunerra.views.welcome', name='welcome'),

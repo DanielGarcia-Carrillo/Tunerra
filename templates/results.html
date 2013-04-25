@@ -10,20 +10,31 @@
             <div class="span3"></div>
             <div class="well span6">
               <h2>Songs</h2>
+              <ul class="media-list">
               {% for song in song_list %}
-                  <!-- TODO actually put things here -->
-                  <li></li>
+                  <li class="media">
+                      <a class="pull-right">
+                          <img class="media-object" data-src="{{ song.album.cover_art_url }}">
+                      </a>
+                      <div class="media-body">
+                          <h4 class="media-heading">{{ song.title }} - {{ song.artist.name }}</h4>
+                      </div>
+                  </li>
               {% endfor %}
+              </ul>
             </div>
         </div>
         <div class="row-fluid">
             <div class="span3"></div>
             <div class="well span6">
               <h2>People to follow</h2>
+              <ul class="nav nav-pills nav-stacked">
               {% for user in user_list %}
-
+                <li><a href="/accounts/profile/{{ user.username }}">{{ user.username }}</a></li>
               {% endfor %}
+              </ul>
             </div>
         </div>
+
     </div>
 {% endblock content %}
