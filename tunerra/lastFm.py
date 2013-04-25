@@ -1,6 +1,10 @@
 from tunerra.models import Song, Album, Artist, Genre, MetadataProvider
+import urllib2
+import json
+import datetime
 
 
+lastFmLink_Album = 'http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=64e400a9de3b4287b61df31a91237cb3&artist=!&album=$&format=json'
 lastFmLink_Track = 'http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=64e400a9de3b4287b61df31a91237cb3&artist=!&track=$&format=json'
 
 '''Validates and enters new song into database'''
@@ -17,7 +21,7 @@ def getLastFmSong(title, artist):
         return None
     trackInfo = jsonSong['track']
     try:
-        thisSong = Songs.objects.get(title = title, artist__name = artist)
+        thisSong = Song.objects.get(title = title, artist__name = artist)
         return thisSong
     except:
         pass
@@ -64,7 +68,7 @@ def addToDatabase(trackInfo, songsAdded):
         try:
             for imageFile in jsonAlbum['image']:
                 if imageFile['size'] == 'mega':
-                    albumDict['cover_art_url'] = ['#text']
+                    albumDict['cover_art_url'] = imageFile['#text']
         except:
             print "Default cover"
             albumDict['cover_art_url'] = ''
