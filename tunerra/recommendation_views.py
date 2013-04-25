@@ -1,5 +1,5 @@
 from tunerra import models
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.generic import View
 import requests
 import json
@@ -12,16 +12,14 @@ lastFmLink_Track = 'http://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_k
 class PersonRecommendation(View):
     def post(self, request, *args, **kwargs):
         recommended_user = recommendUser(request.user)
-        if recommended_user:
-            rec = models.FollowRecommendation(user=request.user, follow_user=recommended_user)
-            rec.save()
         return_dict = [{"usr_name": recommended_user.username, "usr_url": ("/accounts/profile/" + recommended_user.username)}]
-
-        return_content = json.dumps(return_dict)
-        print return_content
-        response = HttpResponse(content=return_content, status=200)
-        return response
-
+        if recommended_user:
+            rec, created_now = models.FollowRecommendation.objects.get_or_create(user=request.user, follow_user=recommended_user)
+            if created_now:
+                return_content = json.dumps(return_dict)
+                response = HttpResponse(content=return_content, status=200)
+                return response
+        return HttpResponse(status=403, content=json.dumps(return_dict))
 
 class MusicRecommendation(View):
     def post(self, request, *args, **kwargs):
@@ -29,17 +27,20 @@ class MusicRecommendation(View):
         rec_songs = []
         for x in range(3):
             song = recommendSong(request.user)
-            recommendation = models.MusicRecommendation(user=request.user, song=song)
-            recommendation.save()
-            cover_url = song.album.cover_art_url
-            provider_url = get_provider_link(song)
+            recommendation, created_now = models.MusicRecommendation.objects.get_or_create(user=request.user, song=song)
+            if created_now:
+                recommendation.save()
+                cover_url = song.album.cover_art_url
+                provider_url = get_provider_link(song)
 
-            rec_songs.append({
-                "cover_url": cover_url,
-                "title": song.title,
-                "artist": song.artist.name,
-                "provider_url": provider_url
-            })
+                rec_songs.append({
+                    "cover_url": cover_url,
+                    "title": song.title,
+                    "artist": song.artist.name,
+                    "provider_url": provider_url
+                })
+            else:
+                x -= 1
 
         return HttpResponse(content=json.dumps(rec_songs), status=200)
 

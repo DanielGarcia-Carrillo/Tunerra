@@ -24,7 +24,7 @@ DjangoPortNum = 14689
 TCP_IP = '127.0.0.1'
 BUFFER_SIZE = 1024 * 1000
 
-sys.path.append(R"C:\Coding\Django\virtualenv-1.8.4\my_env\Scripts\myproject")
+sys.path.append(R"/home/danielgc/webapps/tunerra/myproject")
 
 def setup_django_env(path):
     import imp, os
@@ -188,7 +188,7 @@ def addToDatabase(trackInfo, songsAdded):
 	
 if __name__ == '__main__':
     # TODO absolute path
-    setup_django_env(R'C:/Coding/Django/virtualenv-1.8.4/my_env/Scripts/myproject/myproject')	
+    setup_django_env(R'/home/danielgc/webapps/tunerra/myproject/myproject')
     from tunerra.models import Song, Album, Artist, Genre, MetadataProvider
     from django.db import transaction
     run()

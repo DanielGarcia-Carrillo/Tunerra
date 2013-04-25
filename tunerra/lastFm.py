@@ -23,6 +23,7 @@ def getLastFmSong(title, artist):
         return None
     trackInfo = jsonSong['track']
     try:
+        print Song.objects.get(title = title, artist__name = artist).query
         thisSong = Song.objects.get(title = title, artist__name = artist)
         print "Song found already!"
         return thisSong

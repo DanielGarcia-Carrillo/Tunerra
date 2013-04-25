@@ -127,7 +127,7 @@ if __name__ == '__main__':
     for x in range(initial_page, 17894):  # 17894 is the last beatport page
         try:
             mem_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-            if mem_usage > 150000000:
+            if mem_usage > 150000:
                 raise Exception("too much memory usage")
             scrape_api_page(x)
         except Exception as exc:
