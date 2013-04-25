@@ -1,3 +1,5 @@
+from tunerra.models import *
+from tunerra.models import Album, Song, UserPreferences, UserPreferredGenre, Follows, Favorites, Artist
 from django.views.generic import View
 from django.shortcuts import render
 from django.template import RequestContext
@@ -9,16 +11,15 @@ class search(View):
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated():
 
-            print "REQUEST IS: " + str(request)
-
             print "recommendations"
             # return user specific results
-            newSong = recommendations.recommendSong(request.user)
-            print newSong.title
-            print newSong.artist.name
+            songList, userList = self.parseText(request.user, request.POST['query'])
+            print songList
+            print userList
 
             return render(request, 'results.html', RequestContext(request))
         else:
+
             # Return some generic results
             return render(request, 'results.html', RequestContext(request))
 
@@ -43,19 +44,22 @@ class search(View):
             for x in range (0, 3):
                 songList.append(recommendations.recommendSong)
 
-        numArtist = Artist.objcets.filter(name = text)
+        numArtist = Artist.objects.filter(name = text)
         if numArtist.count() > 0:
             currArtist = Artist.objects.get(name = text)
-            artSongs = Songs.objects.filter(artist = currArtist)
-            i = random.randInt(0, artSongs.count())
+            artSongs = Song.objects.filter(artist = currArtist)
+            i = random.randint(0, artSongs.count())
             for x in range(0, artSongs.count()):
 
                 songList.append(artSongs[i])
             for x in range(0, artSongs.count()):
                 if x > 3:
                     continue
-                i = random.randInt(0, artSongs.count())
-                songList.append(recommendations.recommendSong(user, artSongs[i].genre))
+                i = random.randint(0, artSongs.count())
+                try:
+                    songList.append(recommendations.recommendSong(user, artSongs[i].genre))
+                except:
+                    continue
 
         numAlbum = Album.objects.filter(name = text)
         if numAlbum.count() > 0:
@@ -64,13 +68,13 @@ class search(View):
             for x in range(0, currSongs.count()):
                 if x > 3:
                     continue
-                i = random.randInt(0, currSongs.count())
+                i = random.randint(0, currSongs.count())
                 songList.append(currSongs[i])
                 songList.append(recommendations.recommendSong(user,currSongs[i].genre))
         
         userList.append(recommendations.recommendUser(user))
 
-        numPerson = User.objects.filter(name = text)
+        numPerson = User.objects.filter(username = text)
         if numPerson.count() > 0:
             currUser = numPerson[0]
             for x in range(0, 3):

@@ -301,31 +301,41 @@ def recommendUser(user):
 
     '''Get your fav genres'''
     favGenres = UserPreferredGenre.objects.filter(user = user)
+    preferredGenres = UserPreferredGenre.objects.filter(user = user).filter(weight__gt = 0.0)
+
+    print list(preferredGenres)
 
 
     '''First search for people who also follow who you follow'''
-    otherFollow = Follows.objects.select_related().filter(follows__in = [youFollow.following for fUser in  youFollow])
+    otherFollow = Follows.objects.select_related().filter(following__in = [youFollow.following for fUser in  youFollow])
 
 
     if otherFollow.count() > 0:
         return recommendFollows(user, otherFollow)
 
+    random.shuffle(list(preferredGenres))
+
     '''If there still isn't anybody, just find someone randomly who shares a genre with you'''
-    for favGenre in random.shuffle(favGenres):
+    for favGenre in preferredGenres:
         targUsers = UserPreferredGenre.objects.select_related().filter(genre = favGenre).filter(weight__gt = 0.0)
         if targUsers.count() > 0:
-            return random.shuffle(targUsers)[0].user
+            random.shuffle(targUsers)
+            return targUsers[0].user
 
     '''If we still can't find anyone, just find someone randomly that has same popularity level'''
     simPopUsers = UserPreferences.objects.filter(preferred_popularity = currPopularity)
     if simPopUsers.count() > 0:
-        return random.shuffle(simPopUsers)[0].user
+        random.shuffle(simPopUsers)
+        if simPopUsers[0].user != user:
+            return simPopUsers[0].user
 
     '''Default to a random user if we really can't find anyone'''
     while True:
         rIndex = random.randint(0, User.objects.all().count())
         try:
-            return User.objects.all()[rIndex]
+            currUser = User.objects.all()[rIndex]
+            if currUser != user:
+                return User.objects.all()[rIndex]
         except:
             pass
 
@@ -338,7 +348,7 @@ def recommendFollows(user, otherFollow):
 
 
     '''Instead of just recommending anyone, try recommending someone that has the same favorite Genre as you'''    
-    myFavGen = getMaxFavGenre(favGenres)
+    myFavGen = getMaxFavGenre(preferredGenres)
     for followEntry in random.shuffle(otherFollow):
         thisUser = followEntry.user
         if getMaxFavGenre(UserPreferredGenre.objects.filter(user = thisUser)) == myFavGen:
