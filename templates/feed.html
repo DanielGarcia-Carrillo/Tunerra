@@ -17,7 +17,12 @@
         <div class ="span6">
             <div class = "hero-unit"><h2>Welcome back, {{user.username}}</h2></div>
             <div class="well post-box">
-                  <form method="post" action="" id="profile-post-form" accept-charset="utf-8"> {% csrf_token %}
+                  <form method="post" action="/accounts/feed/{{ request.user.username }}" id="profile-post-form" accept-charset="utf-8"> {% csrf_token %}
+                      {% if song_errors %}
+                          {% for error in song_errors %}
+                              <p>{{ error }}</p>
+                          {% endfor %}
+                      {% endif %}
                       {{ post_form.non_field_errors }}
                       {{ post_form.title.errors }}
                       {{ post_form.title }}<br />
@@ -40,24 +45,26 @@
                       <div class="media-body">
                           <h4 class="media-heading">{{ post.song.title }} - {{ post.song.artist }} - {{ post.song.album.name }}</h4>
                           <p class="post-body">{{ post.body }}</p>
-                          <p class="post-info"><input type="button" id="post-{{ post.pk }}" class="btn btn-small btn-like" value="{{ post.likes }}"></p>
-                          {% if post.user.username != request.user.username %}
+                          <p class="post-info"><input type="button" id="post-{{ post.pk }}" class="btn btn-small btn-like" value="{{ post.likes }}">
                               {{ post.user.username }}
-                          {% endif %}
+                          </p>
                       </div>
                     </li>
                     {% endfor %}
                 </ul>
-
             </div>
         </div>
         <div class="span3">
-          <div id="music-recs">
+          <div id="music-recs" class="well">
+              <input type="button" id="music-rec" value="More music Recommendations">
               {% for rec in music_recommendations %}
+                  <a>{{ rec.provider_id }}</a><br />
               {% endfor %}
           </div>
-          <div id="follow-recs">
+          <div id="follow-recs" class="well">
+              <input type="button" id="person-rec" value="More people recommendations">
               {% for rec in follow_recommendations %}
+                  <a href="/accounts/profile/{{ rec.user }}"></a><br />
               {% endfor %}
           </div>
         </div>
@@ -90,20 +97,40 @@
             });
 
         });
-
-        $("#profile-post-form").submit(function(event) {
+    </script>
+    <script>
+        //
+        $("#music-rec").click(function(event) {
             event.preventDefault();
-            var $form = $(this);
-            serializedData = $form.serialize();
+            var $button = $(this);
 
             $.ajax({
-                url: "/accounts/feed/{{ request.user.username }}",
+                url: "{% url "recommend_music" %}",
                 type: "post",
-                data: serializedData,
+                dataType: "json",
+                data: {
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                },
                 success: function(response) {
-                    alert(response)
-                }
 
+                }
+            });
+        });
+
+        $("#person-rec").click(function(event) {
+            event.preventDefault();
+            var $button = $(this);
+
+            $.ajax({
+                url: "{% url "recommend_person" %}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                },
+                success: function(response) {
+
+                }
             });
         });
     </script>

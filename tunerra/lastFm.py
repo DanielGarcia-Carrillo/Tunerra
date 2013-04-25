@@ -84,7 +84,7 @@ def addToDatabase(trackInfo, songsAdded):
         try:
             for imageFile in jsonAlbum['image']:
                 if imageFile['size'] == 'mega':
-                    albumDict['cover_art_url'] = ['#text']
+                    albumDict['cover_art_url'] = imageFile['#text']
         except:
             print "Default cover"
             albumDict['cover_art_url'] = ''

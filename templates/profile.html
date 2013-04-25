@@ -6,9 +6,9 @@
       {% if user.is_authenticated %}
           {% if following and not same_user%}
               <!-- This shouldn't be a link, it should be javascript callback -->
-              <li><a id="unfollow" href="{{ request.path }}/unfollow">Unfollow</a></li>
+              <li><a id="follow-link">Unfollow</a></li>
           {% elif not following and not same_user %}
-              <li><a id="follow" href="{{ request.path }}/follow">Follow</a></li>
+              <li><a id="follow-link">Follow</a></li>
           {% endif %}
           <li><a href="/accounts/feed/{{ user.username }}">Feed</a><li>
           <li><a href="{% url "logout" %}">Logout</a></li>
@@ -37,7 +37,7 @@
                             <p class="post-info">
                             {% if user.is_authenticated %}
                                 <!--Ajax it up for link--><input type="button" class="btn btn-small btn-like" id="post-{{ post.pk }}" value="{{ post.likes }}">
-                            {% endif %} - {{ post.user.username }}</p>
+                            {% endif %}</p>
                         </div>
                     </li>
               </ul>
@@ -54,21 +54,42 @@
       </div>
     </div>
     <script>
-      $("#follow").click(function(event) {
-        event.preventDefault();
-        $.ajax({
-            url: "{{ request.path }}/follow"
-        }).done(function() {
-                    $(this).html("Follow");
+        $(".btn-like").click(function(event) {
+            event.preventDefault();
+            var $button = $(this);
+            var $id = parseInt($button.attr("id").split("-")[1]);
+
+            $.ajax({
+                url: "/accounts/profile/{{ request.user.username }}/like",
+                type: "post",
+                data: {
+                    "post_id": $id,
+                    "like_username": "{{request.user.username}}",
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                },
+                success: function(response) {
+                    if (response === "unliked") {
+                        $button.val(parseInt($button.attr("value"))-1)
+                    } else if (response === "liked") {
+                        $button.val(parseInt($button.attr("value"))+1)
+                    }
+                },
+                error: function(response) {
+                    alert("Something went wrong")
+                }
+            });
+
         });
-      });
-      $("#unfollow").click(function(event) {
-        event.preventDefault();
-        $.ajax({
-            url: "{{ request.path }}/unfollow"
-        }).done(function() {
-          $(this).html("Unfollow");
+        $("#follow-link").click(function(event) {
+            event.preventDefault();
+            var $link = $(this);
+            $.ajax({
+                url: "{{ request.path }}/follow",
+                type: "get",
+                success: function(response) {
+                  $link.html(response)
+                }
+            });
         });
-      });
     </script>
 {% endblock content %}
