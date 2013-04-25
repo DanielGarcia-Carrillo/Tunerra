@@ -311,13 +311,11 @@ def recommendUser(user):
 
     print list(preferredGenres)
 
-
-    '''First search for people who also follow who you follow'''
-    otherFollow = Follows.objects.select_related().filter(following__in = [youFollow.following for fUser in  youFollow])
-
-
-    if otherFollow.count() > 0:
-        return recommendFollows(user, otherFollow)
+    if youFollow.count() > 0:
+        '''First search for people who also follow who you follow'''
+        otherFollow = Follows.objects.select_related().filter(following__in = [fUser.following for fUser in  youFollow])
+        if otherFollow.count() > 0:
+            return recommendFollows(user, otherFollow)
 
     genList = list(preferredGenres)
 
