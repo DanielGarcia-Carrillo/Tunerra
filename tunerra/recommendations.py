@@ -18,6 +18,10 @@ low_pop_weight = 0.05
 currPopularity = 0
 currWeight = float()
 
+def recommendSong(user, targGenre = None):
+    return recommendSongR(user, 0, targGenre)
+
+
 def getTopTagTracks(genOfRec):
     global high_pop_weight
     global med_pop_weight
@@ -70,8 +74,14 @@ def getTopTagTracks(genOfRec):
         return None
     return thisSong
 
+
 '''Recommends a song based on user likes and preferences'''
-def recommendSong(user):
+def recommendSongR(user, depth, targGenre = None):
+
+    if depth == 5:
+        rNum = random.randint(0, Song.objects.all().count())
+        return Song.objects.all()[rNum]
+
 
     global high_pop_weight
     global med_pop_weight
@@ -105,13 +115,13 @@ def recommendSong(user):
 
 
     '''If the user has preferred genres, select one'''
-    genOfRec = None
+    genOfRec = targGenre
     fUser = None
-
-    if preferredGenres.count() > 0:
-        genOfRec = decideGenre(preferredGenres)
-    else:
-        genOfRec, fUser = getNewGenre(user)
+    if genOfRec == None:
+        if preferredGenres.count() > 0:
+            genOfRec = decideGenre(preferredGenres)
+        else:
+            genOfRec, fUser = getNewGenre(user)
 
     print "Genre of rec is: " + genOfRec.name
     
@@ -274,6 +284,9 @@ def recommendUser(user):
     global low_pop_weight
     global currPopularity
     global currWeight
+
+    '''Get user preferences'''
+    currPrefs = UserPreferences.objects.get(user = user)
 
     currPopularity = int(currPrefs.preferred_popularity)
     if currPopularity == 3:
