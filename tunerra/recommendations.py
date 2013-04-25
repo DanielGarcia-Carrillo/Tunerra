@@ -281,8 +281,13 @@ def getMaxFavGenre(preferredGenres):
     global currPopularity
     global currWeight
 
-    max_weight = preferredGenres.objects.all().aggregate(Max('weight'))['weight__max']
-    return preferredGenres.objects.filter(weight =  max_weight)[0]
+    maxGenre = None
+    max_weight = 0.0
+    for genObj in preferredGenres:
+        if genObj.weight > max_weight:
+            max_weight = genObj.weight
+            maxGenre = genObj.genre
+    return maxGenre
 
 def recommendUser(user):
     global high_pop_weight
@@ -311,13 +316,13 @@ def recommendUser(user):
 
     print list(preferredGenres)
 
-
-    '''First search for people who also follow who you follow'''
-    otherFollow = Follows.objects.select_related().filter(following__in = [youFollow.following for fUser in  youFollow])
-
-
-    if otherFollow.count() > 0:
-        return recommendFollows(user, otherFollow)
+    if youFollow.count() > 0:
+        '''First search for people who also follow who you follow'''
+        otherFollow = Follows.objects.select_related().filter(following__in = [fUser.following for fUser in  youFollow])
+        if otherFollow.count() > 0:
+            tryUsr = recommendFollows(user, otherFollow)
+            if not tryUsr == user:
+                return tryUsr
 
     genList = list(preferredGenres)
 
@@ -359,6 +364,9 @@ def recommendFollows(user, otherFollow):
     global currWeight
 
 
+    preferredGenres = UserPreferredGenre.objects.filter(user = user).filter(weight__gt = 0.0)
+
+
     '''Instead of just recommending anyone, try recommending someone that has the same favorite Genre as you'''    
     myFavGen = getMaxFavGenre(preferredGenres)
 
@@ -374,12 +382,15 @@ def recommendFollows(user, otherFollow):
     '''If that gets nobody, try recommending someone that has the same popularity level as you'''
     for followEntry in folList:
         thisUser = followEntry.user
-        if thisUser.preferred_popularity == user.preferred_popularity:
+        thisusrPrefs = UserPreferences.objects.get(user = thisUser)
+        usrPrefs = UserPreferences.objects.get(user = user)
+        if thisusrPrefs.preferred_popularity == usrPrefs.preferred_popularity:
             if not thisUser == user:
                 return thisUser
 
     '''Otherwise just get someone random'''
     random.shuffle(otherFollow)
+
 
     return otherFollow[0].user
 
