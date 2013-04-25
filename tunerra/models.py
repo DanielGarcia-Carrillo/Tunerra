@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 
 class Region(models.Model):
@@ -111,11 +112,18 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         """ save will add song to favorites if it's not there and increment playcount if it is """
+        if Favorites.objects.filter(user = self.user, song_id = self.song):
+            currFav = Favorites.objects.get(user = self.user, song_id = self.song)
+            currFav.play_count += 1
+            currFav.last_played = datetime.datetime.now().strftime("%Y-%m-%d")
+            currFav.save()
+            super(Post, self).save(*args, **kwargs)
+            return
         fav, created = Favorites.objects.get_or_create(user=self.user, song_id=self.song, last_played = datetime.datetime.now().strftime("%Y-%m-%d"))
         if not created:
             fav.play_count += 1
 
-        fav.last_played = self.creation_time
+        #fav.last_played = self.creation_time
         fav.save()
 
         super(Post, self).save(*args, **kwargs)

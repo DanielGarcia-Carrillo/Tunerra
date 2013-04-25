@@ -34,7 +34,6 @@ class MusicRecommendation(View):
 
             rec_songs.append({
                 "cover_url": cover_url,
-                "music_rec_id": recommendation.pk,
                 "title": song.title,
                 "artist": song.artist.name,
                 "provider_url": provider_url
@@ -56,7 +55,6 @@ def get_provider_link(song):
         req = urllib2.Request(url)
         head = urllib2.build_opener()
         try:
-            time.sleep(1)
             jsonSong = json.load(head.open(req))
             provider_url = jsonSong['track']['url']
         except:

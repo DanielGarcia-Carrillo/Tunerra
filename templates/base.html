@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 {% load staticfiles %}
-{% load dajaxice_templatetags %}
-
 
 <html lang="en">
 <head>
@@ -13,8 +11,6 @@
       <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
       <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
       <script src="{% static "slider/js/bootstrap-slider.js" %}"></script>
-      {% dajaxice_js_import %}
-      <script src="{% static "dajax/jquery.dajax.core.js" %}"></script>
     {% endblock scripts %}
 
     {% block stylesheets %}
@@ -34,7 +30,7 @@
             <ul class="nav pull-right">
                 <li>
                     <form class="navbar-search pull-left" action="{% url "search" %}" method="post"> {% csrf_token %}
-                        <input type="text" class="search-query" placeholder="Get Recommendations">
+                        <input type="text" class="search-query" name="query" placeholder="Get Recommendations">
                     </form>
                 </li>
             </ul>

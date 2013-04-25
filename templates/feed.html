@@ -56,8 +56,8 @@
         </div>
         <div class="span3">
           <div id="music-recs" class="well">
-              <input type="button" id="music-rec" value="More music Recommendations">
-              <ul class="media-heading">
+              <input type="button" id="music-rec" value="More music Recommendations"><br />
+              <ul class="media-heading" id="music-rec-list">
                 {% for rec in music_recs %}
                     <li class="media music-rec-post">
                       <a class="pull-left">
@@ -121,7 +121,14 @@
                     "csrfmiddlewaretoken": "{{ csrf_token }}"
                 },
                 success: function(response) {
-                  response.rec_usr
+                    var $list = $("#music-rec-list");
+                    for (var i=0; i<response.length; i++) {
+                        $list.prepend("<li class=\"media music-rec-post\">" +
+                                "<a class=\"pull-left\"><img class=\"media-object\" src=\"" + response[i].cover_url + "\"></a>" +
+                                "<div class=\"media-body\"><a class=\"rec-body\" href=\"" + response[i].provider_url + "\">"+ response[i].title +" - "+ response[i].artist +"</a></div></li>");
+                        // Because we added something to the list, we should remove from the end of the list
+                        $list.filter(":last-child").remove();
+                    }
                 }
             });
         });
