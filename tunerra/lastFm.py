@@ -34,7 +34,10 @@ def getLastFmSong(title, artist):
 
 
 def getLastFMSongAuth(title, artist, user):
-    newSong = getLastFmSong(title, artist)
+    if Song.objects.filter(title = title, artist__name = artist).exists():
+        newSong = Song.objects.get(title = title, artist__name = artist)
+    else:
+        newSong = getLastFmSong(title, artist)
     print "New song name is: " + newSong.title
     try:
         print "Adding the favorite for " + str(user)
@@ -91,23 +94,31 @@ def addToDatabase(trackInfo, songsAdded):
             albumDict['cover_art_url'] = ''
         print "Saving stuff"
 
-        currAlbQ = Album.objects.filter(name = albumDict['name'])
 
-        if currAlbQ.exists():
-            currAlb = Album.objects.get(name = albumDict['name'])
-            
+        try:
+            currAlbQ = Album.objects.filter(name = albumDict['name'])
 
-        newAlb, created = Album.objects.get_or_create(**albumDict)
-        newGenre, created = Genre.objects.get_or_create(name = songDict['genre'])
-        newArtist, created = Artist.objects.get_or_create(name = songDict['artist'])
-        newProvider, created = MetadataProvider.objects.get_or_create(name = songDict['provider'])
-        songDict['genre'] = newGenre
-        songDict['artist'] = newArtist
-        songDict['album'] = newAlb
-        songDict['provider'] = newProvider
-        newSong = Song(**songDict)
-        newSong.save()
-        return newSong
+            if currAlbQ.exists():
+                newAlb = Album.objects.get(name = albumDict['name'])
+            else:
+                newAlb, created = Album.objects.get_or_create(**albumDict)
+            newGenre, created = Genre.objects.get_or_create(name = songDict['genre'])
+
+            currArt = Artist.objects.filter(name = songDict['artist'])
+            if currArt.exists():
+                newArtist = Artist.objects.get(name = songDict['artist'])
+            else:
+                newArtist, created = Artist.objects.get_or_create(name = songDict['artist'])
+            newProvider, created = MetadataProvider.objects.get_or_create(name = songDict['provider'])
+            songDict['genre'] = newGenre
+            songDict['artist'] = newArtist
+            songDict['album'] = newAlb
+            songDict['provider'] = newProvider
+            newSong = Song(**songDict)
+            newSong.save()
+            return newSong
+        except Exception as e:
+            print e
     except Exception as e:
         print e
         return None

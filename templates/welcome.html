@@ -20,10 +20,6 @@
         <div class = "well">
           <form class ="form-horizontal" method='post'> {% csrf_token %}
               {{ last_fm_form.non_field_errors }}
-            <label class = "control-label" for ="{{prefsform.notify_system}}">Receive Notifications:</label>
-            <div class = "controls">
-                {{prefsForm.notify_system}}
-            </div><br><br>
             <label class = "control-label" for ="{{prefsform.region}}">Enter your region:</label>
             <div class = "controls">
                 {{prefsForm.region}}
