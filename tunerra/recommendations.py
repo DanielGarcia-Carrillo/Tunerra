@@ -284,8 +284,8 @@ def getMaxFavGenre(preferredGenres):
     maxGenre = None
     max_weight = 0.0
     for genObj in preferredGenres:
-        if genObj.genre.weight > max_weight:
-            max_weight = genObj.genre.weight
+        if genObj.weight > max_weight:
+            max_weight = genObj.weight
             maxGenre = genObj.genre
     return maxGenre
 
