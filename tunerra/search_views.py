@@ -72,7 +72,20 @@ class search(View):
 
         numPerson = User.objects.filter(name = text)
         if numPerson.count() > 0:
-            
+            currUser = numPerson[0]
+            for x in range(0, 3):
+                userList.append(recommendations.recommendUser(currUser))
+                songList.append(recommendations.recommendSong(currUser))
+            followSet = Follows.objects.filter(user = currUser)
+            for use in followSet:
+                userList.append(use.user)
+                userList.append(use.following)
+                random.shuffle(userList)
+            userList.append(numPerson[0])
+
+        return songList, userList
+
+
 
 
 
