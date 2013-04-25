@@ -114,7 +114,7 @@ class Post(models.Model):
         if Favorites.objects.filter(user = self.user, song_id = self.song):
             currFav = Favorites.objects.get(user = self.user, song_id = self.song)
             currFav.play_count += 1
-            fav.save()
+            currFav.save()
             super(Post, self).save(*args, **kwargs)
             return
         fav, created = Favorites.objects.get_or_create(user=self.user, song_id=self.song, last_played = datetime.datetime.now().strftime("%Y-%m-%d"))
