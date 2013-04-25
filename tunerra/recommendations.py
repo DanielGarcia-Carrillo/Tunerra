@@ -313,20 +313,23 @@ def recommendUser(user):
     if otherFollow.count() > 0:
         return recommendFollows(user, otherFollow)
 
-    random.shuffle(list(preferredGenres))
+    genList = list(preferredGenres)
+
+    random.shuffle(genList)
 
     '''If there still isn't anybody, just find someone randomly who shares a genre with you'''
-    for favGenre in preferredGenres:
+    for favGenre in genList:
         targUsers = UserPreferredGenre.objects.select_related().filter(genre = favGenre).filter(weight__gt = 0.0)
         if targUsers.count() > 0:
-            random.shuffle(targUsers)
-            return targUsers[0].user
+            random.shuffle(list(targUsers))
+            if not targUsers[0] == user:
+                return targUsers[0].user
 
     '''If we still can't find anyone, just find someone randomly that has same popularity level'''
     simPopUsers = UserPreferences.objects.filter(preferred_popularity = currPopularity)
     if simPopUsers.count() > 0:
         random.shuffle(simPopUsers)
-        if simPopUsers[0].user != user:
+        if not simPopUsers[0].user == user:
             return simPopUsers[0].user
 
     '''Default to a random user if we really can't find anyone'''
@@ -334,7 +337,7 @@ def recommendUser(user):
         rIndex = random.randint(0, User.objects.all().count())
         try:
             currUser = User.objects.all()[rIndex]
-            if currUser != user:
+            if not currUser == user:
                 return User.objects.all()[rIndex]
         except:
             pass
@@ -349,19 +352,27 @@ def recommendFollows(user, otherFollow):
 
     '''Instead of just recommending anyone, try recommending someone that has the same favorite Genre as you'''    
     myFavGen = getMaxFavGenre(preferredGenres)
-    for followEntry in random.shuffle(otherFollow):
+
+    folList = list(otherFollow)
+    random.shuffle(folList)
+
+    for followEntry in folList:
         thisUser = followEntry.user
         if getMaxFavGenre(UserPreferredGenre.objects.filter(user = thisUser)) == myFavGen:
-            return thisUser
+            if thisUser != user:
+                return thisUser
 
     '''If that gets nobody, try recommending someone that has the same popularity level as you'''
-    for followEntry in random.shuffle(otherFollow):
+    for followEntry in folList:
         thisUser = followEntry.user
         if thisUser.preferred_popularity == user.preferred_popularity:
-            return thisUser
+            if not thisUser == user:
+                return thisUser
 
     '''Otherwise just get someone random'''
-    return random.shuffle(otherFollow)[0].user
+    random.shuffle(otherFollow)
+
+    return otherFollow[0].user
 
 
 
