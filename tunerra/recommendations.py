@@ -358,14 +358,16 @@ def recommendFollows(user, otherFollow):
 
     for followEntry in folList:
         thisUser = followEntry.user
-        if getMaxFavGenre(UserPreferredGenre.objects.filter(user = thisUser)) == myFavGen && thisUser != user:
-            return thisUser
+        if getMaxFavGenre(UserPreferredGenre.objects.filter(user = thisUser)) == myFavGen:
+            if thisUser != user:
+                return thisUser
 
     '''If that gets nobody, try recommending someone that has the same popularity level as you'''
     for followEntry in folList
         thisUser = followEntry.user
-        if thisUser.preferred_popularity == user.preferred_popularity && thisUser != user:
-            return thisUser
+        if thisUser.preferred_popularity == user.preferred_popularity:
+            if thisUser != user:
+                return thisUser
 
     '''Otherwise just get someone random'''
     random.shuffle(otherFollow)
