@@ -111,7 +111,7 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         """ save will add song to favorites if it's not there and increment playcount if it is """
-        fav, created = Favorites.objects.get_or_create(user=self.user, song_id=self.song)
+        fav, created = Favorites.objects.get_or_create(user=self.user, song_id=self.song, last_played = datetime.datetime.now().strftime("%Y-%m-%d"))
         if not created:
             fav.play_count += 1
 
